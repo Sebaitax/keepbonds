@@ -1,0 +1,2442 @@
+<!doctype html>
+<title>KeepBonds</title>
+<meta charset="UTF-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Karla:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<style>
+
+  :root{
+    --cream:#F6EFE2;
+    --surface:#FFFCF6;
+    --surface-2:#EFE6D2;
+    --sage:#74845F;
+    --sage-deep:#4B5A3C;
+    --sage-soft:#DEE5CE;
+    --terracotta:#C97B54;
+    --terracotta-deep:#A64F35;
+    --terracotta-soft:#F1DECB;
+    --ink:#362F24;
+    --ink-soft:#7C7361;
+    --ink-faint:#B0A692;
+    --line:#E7DCC5;
+    --line-soft:rgba(54,47,36,0.05);
+  }
+  .app-root.theme-dark{
+    --cream:#221E19;
+    --surface:#2B2620;
+    --surface-2:#3A3428;
+    --ink:#F1EADB;
+    --ink-soft:#C7BCA3;
+    --ink-faint:#8B8168;
+    --line:#463F31;
+    --line-soft:rgba(255,255,255,0.06);
+  }
+
+  *{box-sizing:border-box;}
+  button{
+    font: inherit; color: inherit; background: none; border: none; margin: 0; padding: 0;
+    cursor: pointer; -webkit-tap-highlight-color: transparent; outline: none;
+    -webkit-appearance: none; appearance: none;
+  }
+  button:focus{ outline: none; }
+  html,body{margin:0;padding:0;height:100%;overscroll-behavior:none;}
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Karla', ui-sans-serif, system-ui, sans-serif;
+  }
+  #root{height:100%;}
+  .font-display{ font-family:'Fraunces', ui-serif, Georgia, serif; }
+  h1,h2,h3,.font-display{ text-wrap:balance; }
+  .tabular{ font-variant-numeric: tabular-nums; }
+
+  .app-root{
+    height:100dvh; width:100%;
+    background:var(--cream);
+    color:var(--ink);
+    display:flex; flex-direction:column;
+    overflow:hidden;
+  }
+  .screen-scroll{
+    flex:1; overflow-y:auto; overflow-x:hidden;
+    scrollbar-width:none;
+  }
+  .screen-scroll::-webkit-scrollbar{ display:none; }
+
+  .hscroll{ overflow-x:auto; scrollbar-width:none; scroll-snap-type:x proximity; }
+  .hscroll::-webkit-scrollbar{ display:none; }
+
+  .card{
+    background:var(--surface);
+    border-radius:1.4rem;
+    box-shadow: 0 10px 24px -16px rgba(60,45,20,0.28), 0 1px 0 rgba(60,45,20,0.04);
+    border:1px solid var(--line-soft);
+  }
+
+  .icon-btn{
+    width:40px; height:40px; border-radius:999px; background:var(--surface);
+    display:flex; align-items:center; justify-content:center; position:relative; flex-shrink:0;
+    box-shadow: 0 8px 18px -12px rgba(60,45,20,0.4);
+    border:1px solid var(--line-soft);
+    transition: transform .12s ease;
+  }
+  .icon-btn:active{ transform:scale(.93); }
+  .icon-btn .badge-count{
+    position:absolute; top:-4px; right:-4px; min-width:17px; height:17px; padding:0 4px; border-radius:999px;
+    background:var(--terracotta-deep); box-shadow:0 0 0 2px var(--surface);
+    color:#FBF3E9; font-size:.62rem; font-weight:700; line-height:17px; text-align:center;
+  }
+  .icon-btn .badge-dot{
+    position:absolute; top:6px; right:7px; width:7px; height:7px; border-radius:999px;
+    background:var(--terracotta-deep); box-shadow:0 0 0 2px var(--surface);
+  }
+
+  .status-pill{
+    display:inline-flex; align-items:center; gap:5px;
+    padding:.28rem .6rem; border-radius:999px; font-weight:700; font-size:.78rem;
+  }
+
+  .chip{
+    font-family:'Karla',sans-serif; font-weight:600; font-size:.78rem;
+    padding:.4rem .9rem; border-radius:999px; white-space:nowrap;
+    border:1px solid var(--line); color:var(--ink-soft);
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .chip[data-active="true"]{
+    background:var(--sage-deep); border-color:var(--sage-deep); color:#F6F3E9;
+  }
+
+  .btn-primary{
+    background:var(--sage-deep); color:#F8F5EA;
+    border-radius:1.1rem; font-weight:700; letter-spacing:.01em;
+    transition: transform .12s ease, background .15s ease;
+  }
+  .btn-primary:active{ transform:scale(.98); background:var(--sage); }
+
+  .switch-track{
+    width:44px; height:26px; border-radius:999px; background:var(--surface-2);
+    border:1px solid var(--line); position:relative; transition:background .15s ease;
+    flex-shrink:0;
+  }
+  .switch-track[data-on="true"]{ background:var(--sage); border-color:var(--sage); }
+  .switch-thumb{
+    position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:999px;
+    background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25);
+    transition:left .15s ease;
+  }
+  .switch-track[data-on="true"] .switch-thumb{ left:20px; }
+
+  .segbtn{
+    border:1px solid var(--line); border-radius:.9rem; padding:.55rem .5rem;
+    font-weight:600; font-size:.82rem; color:var(--ink-soft); text-align:center;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .segbtn[data-active="true"]{ background:var(--terracotta-soft); border-color:var(--terracotta); color:var(--terracotta-deep); }
+
+  .field-label{ font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); }
+
+  .input{
+    width:100%; border:1px solid var(--line); background:var(--surface);
+    border-radius:.9rem; padding:.7rem .85rem; font-family:'Karla',sans-serif;
+    font-size:.92rem; color:var(--ink); outline:none;
+  }
+  .input:focus{ border-color:var(--sage); box-shadow:0 0 0 3px color-mix(in srgb, var(--sage) 20%, transparent); }
+
+  .toast{
+    position:absolute; left:50%; bottom:96px; transform:translateX(-50%);
+    background:var(--ink); color:var(--cream); font-size:.82rem; font-weight:600;
+    padding:.65rem 1.1rem; border-radius:999px; box-shadow:0 12px 24px -8px rgba(0,0,0,.4);
+    z-index:50; white-space:nowrap;
+    animation: toastIn .28s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes toastIn{
+    from{ opacity:0; transform:translateX(-50%) translateY(10px) scale(.96); }
+    to{ opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+  }
+
+  .sheet-backdrop{ animation: backdropIn .18s ease both; }
+  @keyframes backdropIn{ from{ opacity:0; } to{ opacity:1; } }
+
+  .sheet-pop{ animation: sheetUp .26s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes sheetUp{ from{ transform:translateY(100%); } to{ transform:translateY(0); } }
+
+  .icon-btn, .btn-primary, .chip, .segbtn{ transition-property: transform, background, color, border-color; }
+  .icon-btn:active, .chip:active, .segbtn:active{ transform:scale(.94); }
+
+  .screen-enter{ animation: screenIn .22s ease both; }
+  @keyframes screenIn{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0);} }
+
+  @media (prefers-reduced-motion: reduce){
+    .screen-enter, .toast, .sheet-backdrop, .sheet-pop{ animation:none; }
+    .btn-primary,.chip,.segbtn,.switch-track,.switch-thumb,.icon-btn{ transition:none; }
+  }
+
+
+  .phone-shell{
+    width: 375px;
+    height: 800px;
+    border-radius: 3rem;
+    background: linear-gradient(155deg,#38352D 0%, #2E2B25 20%, #1C1A16 100%);
+    padding: 14px;
+    box-shadow:
+      0 40px 80px -25px rgba(20,16,8,0.55),
+      0 10px 30px -12px rgba(20,16,8,0.4),
+      inset 0 1px 0 rgba(255,255,255,0.09),
+      inset 0 0 0 1px rgba(255,255,255,0.05);
+    position:relative;
+  }
+  .phone-shell::before{
+    content:"";
+    position:absolute; left:50%; top:26px; transform:translateX(-50%);
+    width:10px; height:10px; border-radius:50%;
+    background:#0d0c0a;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.03);
+  }
+  .phone-btn{ position:absolute; background:#211F1A; }
+  .phone-screen{
+    width:100%; height:100%;
+    background: var(--cream);
+    border-radius: 2.3rem;
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+  }
+  .phone-screen .app-root{ height:auto; flex:1; min-height:0; }
+
+</style>
+
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const {useState, useEffect, useMemo} = React;
+
+/* ---- Stand-ins for native Capacitor plugins (this is a browser mockup, not the installed app) ---- */
+const LocalNotifications = {
+  checkPermissions: async () => ({ display: 'prompt' }),
+  requestPermissions: async () => ({ display: 'granted' }),
+  getPending: async () => ({ notifications: [] }),
+  cancel: async () => {},
+  schedule: async () => {},
+};
+const Contacts = {
+  checkPermissions: async () => ({ contacts: 'prompt' }),
+  getContacts: async () => { throw new Error('Not implemented on web.'); },
+};
+const ImpactStyle = { Light: 'LIGHT', Medium: 'MEDIUM', Heavy: 'HEAVY' };
+const Haptics = { impact: async () => {} };
+const CameraResultType = { DataUrl: 'dataUrl' };
+const CameraSource = { Prompt: 'PROMPT' };
+const Camera = {
+  getPhoto: () => new Promise((resolve, reject) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.style.display = 'none';
+    document.body.appendChild(input);
+    let settled = false;
+    const cleanup = () => { if (input.parentNode) document.body.removeChild(input); };
+    input.addEventListener('change', () => {
+      const file = input.files && input.files[0];
+      if (!file) { settled = true; cleanup(); reject(new Error('cancelled')); return; }
+      const reader = new FileReader();
+      reader.onload = () => { settled = true; cleanup(); resolve({ dataUrl: reader.result }); };
+      reader.onerror = () => { settled = true; cleanup(); reject(new Error('read error')); };
+      reader.readAsDataURL(file);
+    });
+    window.addEventListener('focus', function onFocus(){
+      window.removeEventListener('focus', onFocus);
+      setTimeout(() => { if (!settled) { cleanup(); reject(new Error('cancelled')); } }, 400);
+    });
+    input.click();
+  }),
+};
+
+
+async function hapticTap(style = ImpactStyle.Light){
+  try{ await Haptics.impact({ style }); }catch(e){ /* no disponible fuera de un dispositivo real */ }
+}
+
+function makeId(){
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function onlyDigits(s){
+  return (s || "").replace(/[^\d+]/g, "").replace(/^\+/, "").replace(/\+/g, "");
+}
+
+function openWhatsApp(phone, message){
+  const digits = onlyDigits(phone);
+  if(!digits) return;
+  try{ window.location.href = `https://wa.me/${digits}?text=${encodeURIComponent(message)}`; }catch(e){ /* no-op */ }
+}
+
+function birthdayPayloadToIso(b){
+  if(!b || !b.year || !b.month || !b.day) return null;
+  const mm = String(b.month).padStart(2,'0');
+  const dd = String(b.day).padStart(2,'0');
+  return `${b.year}-${mm}-${dd}`;
+}
+
+async function pickContactPhoto(){
+  try{
+    const photo = await Camera.getPhoto({
+      quality: 70,
+      width: 500,
+      resultType: CameraResultType.DataUrl,
+      source: CameraSource.Prompt,
+      promptLabelHeader: "Foto de perfil",
+      promptLabelPhoto: "Elegir de galería",
+      promptLabelPicture: "Tomar foto",
+      promptLabelCancel: "Cancelar",
+    });
+    return photo.dataUrl || null;
+  }catch(e){
+    // El usuario canceló, o el selector no está disponible fuera de un dispositivo real.
+    return null;
+  }
+}
+
+const ROLE_STYLE = {
+  "Familia":   { bg:"var(--sage-deep)",       tag:"var(--sage-soft)", tagText:"var(--sage-deep)" },
+  "Amigos":    { bg:"var(--terracotta-deep)", tag:"var(--terracotta-soft)", tagText:"var(--terracotta-deep)" },
+  "Conocidos": { bg:"#8A8064",                 tag:"var(--surface-2)", tagText:"var(--ink-soft)" },
+};
+
+const PRIORITY_STYLE = {
+  "Alta":  { bg:"var(--terracotta-soft)", text:"var(--terracotta-deep)" },
+  "Media": { bg:"var(--sage-soft)",       text:"var(--sage-deep)" },
+  "Baja":  { bg:"var(--surface-2)",       text:"var(--ink-soft)" },
+};
+
+const THRESHOLDS = {
+  "Alta":  { ok:3,  warn:7  },
+  "Media": { ok:7,  warn:14 },
+  "Baja":  { ok:14, warn:30 },
+};
+
+function initials(name){
+  return name.split(" ").filter(Boolean).slice(0,2).map(w=>Array.from(w)[0]).join("").toUpperCase();
+}
+
+function isSnoozed(c){
+  return !!(c.snoozedUntil && c.snoozedUntil > todayISO());
+}
+
+function contactStatus(c){
+  const t = THRESHOLDS[c.priority] || THRESHOLDS.Media;
+  const days = daysSinceContact(c);
+  if(isSnoozed(c)) return { level:"ok", color:"var(--sage)", label:"Pospuesto" };
+  if (days <= t.ok) return { level:"ok", color:"var(--sage)", label:"Reciente" };
+  if (days <= t.warn) return { level:"warn", color:"var(--terracotta)", label:"Un tiempo sin hablar" };
+  return { level:"alert", color:"var(--terracotta-deep)", label:"Hace mucho no hablan" };
+}
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function isoDaysAgo(n){
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().slice(0,10);
+}
+function isoDaysFromNow(n){
+  const d = new Date();
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0,10);
+}
+function historyEntry(daysAgo, note=""){
+  return { date: isoDaysAgo(daysAgo), note };
+}
+function normalizeHistory(h){
+  if(!Array.isArray(h)) return [];
+  return h.map(item => typeof item === "string" ? {date:item, note:""} : {date:item.date, note:item.note || ""});
+}
+function daysSince(iso){
+  const d = new Date(iso+"T00:00:00");
+  const t = new Date(todayISO()+"T00:00:00");
+  return Math.round((t-d)/86400000);
+}
+function daysSinceContact(c){
+  if(c.history && c.history[0]) return Math.max(0, daysSince(c.history[0].date));
+  return 0;
+}
+function formatDateEs(iso){
+  const d = new Date(iso+"T00:00:00");
+  return d.toLocaleDateString('es-CL', {day:'numeric', month:'short'});
+}
+function formatTodayLong(){
+  const s = new Date().toLocaleDateString('es-CL', {weekday:'long', day:'numeric', month:'long'});
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function nextBirthdayInfo(birthday){
+  if(!birthday) return null;
+  const [y,m,d] = birthday.split("-").map(Number);
+  const today = new Date(); today.setHours(0,0,0,0);
+  let next = new Date(today.getFullYear(), m-1, d);
+  if(next < today) next = new Date(today.getFullYear()+1, m-1, d);
+  const daysIn = Math.round((next - today) / 86400000);
+  const turningAge = next.getFullYear() - y;
+  return { daysIn, turningAge };
+}
+function formatBirthdayShort(birthday){
+  const [, m, d] = birthday.split("-").map(Number);
+  return new Date(2000, m-1, d).toLocaleDateString('es-CL', {day:'numeric', month:'short'});
+}
+function formatBirthdayLong(birthday){
+  const [, m, d] = birthday.split("-").map(Number);
+  return new Date(2000, m-1, d).toLocaleDateString('es-CL', {day:'numeric', month:'long'});
+}
+
+const MONTHS_ES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+
+function daysInMonth(year, month){
+  return new Date(year, month, 0).getDate();
+}
+
+function DateSelect({value, onChange, minYear, maxYear, allowClear}){
+  const today = new Date();
+  const maxY = maxYear || today.getFullYear();
+  const minY = minYear || (today.getFullYear() - 120);
+  const [year, setYear] = useState("");
+  const [month, setMonth] = useState("");
+  const [day, setDay] = useState("");
+
+  useEffect(()=>{
+    const [ny, nm, nd] = value ? value.split("-").map(Number) : [null, null, null];
+    setYear(ny || ""); setMonth(nm || ""); setDay(nd || "");
+  }, [value]);
+
+  function commit(ny, nm, nd){
+    let clampedD = nd;
+    if(ny && nm && nd) clampedD = Math.min(nd, daysInMonth(ny, nm));
+    setYear(ny); setMonth(nm); setDay(clampedD);
+    if(ny && nm && clampedD){
+      onChange(`${ny}-${String(nm).padStart(2,'0')}-${String(clampedD).padStart(2,'0')}`);
+    } else if(!ny && !nm && !nd){
+      onChange("");
+    }
+  }
+
+  const dayCount = (year && month) ? daysInMonth(year, month) : 31;
+  const years = [];
+  for(let yy=maxY; yy>=minY; yy--) years.push(yy);
+
+  return (
+    <div>
+      <div style={{display:"grid", gridTemplateColumns:"1fr 1.5fr 1fr", gap:8}}>
+        <select className="input" value={day} onChange={e=>commit(year||"", month||"", Number(e.target.value))}>
+          <option value="">Día</option>
+          {Array.from({length:dayCount}, (_,i)=>i+1).map(dd=><option key={dd} value={dd}>{dd}</option>)}
+        </select>
+        <select className="input" value={month} onChange={e=>commit(year||"", Number(e.target.value), day||"")}>
+          <option value="">Mes</option>
+          {MONTHS_ES.map((mo,i)=><option key={mo} value={i+1}>{mo}</option>)}
+        </select>
+        <select className="input" value={year} onChange={e=>commit(Number(e.target.value), month||"", day||"")}>
+          <option value="">Año</option>
+          {years.map(yy=><option key={yy} value={yy}>{yy}</option>)}
+        </select>
+      </div>
+      {allowClear && value && (
+        <button onClick={()=>commit("", "", "")} style={{marginTop:6, fontSize:".74rem", fontWeight:700, color:"var(--terracotta-deep)"}}>
+          Quitar fecha
+        </button>
+      )}
+    </div>
+  );
+}
+
+/* ---------------- Notificaciones locales reales ---------------- */
+
+function computeUpcomingAlerts(contacts, now = new Date()){
+  const alerts = [];
+
+  for(const c of contacts){
+    if(!c.notif) continue;
+
+    if(c.birthday){
+      const info = nextBirthdayInfo(c.birthday);
+      const [, m, d] = c.birthday.split("-").map(Number);
+      let next = new Date(now.getFullYear(), m-1, d);
+      if(next < now) next = new Date(now.getFullYear()+1, m-1, d);
+      const fireDate = new Date(next);
+      fireDate.setDate(fireDate.getDate() - (c.remind || 5));
+      fireDate.setHours(9,0,0,0);
+      if(fireDate > now){
+        alerts.push({
+          id: c.id*1000 + 1,
+          contactId: c.id,
+          contactName: c.name,
+          role: c.role,
+          type: "birthday",
+          daysUntilFire: Math.max(1, Math.ceil((fireDate - now) / 86400000)),
+          previewDays: info.daysIn,
+          fireDate,
+          title: "Cumpleaños próximo",
+          // body: para la notificación real del sistema, el día que llegue (en ese momento sí faltan "remind" días).
+          body: `${c.name} cumple ${info.turningAge} años en ${c.remind} día${c.remind===1?"":"s"}.`,
+          // previewBody: para mostrar en la app HOY, donde lo que falta es el cumpleaños real, no el aviso.
+          previewBody: info.daysIn===0
+            ? `¡Hoy cumple ${info.turningAge} años!`
+            : `Cumple ${info.turningAge} años en ${info.daysIn} día${info.daysIn===1?"":"s"}.`,
+        });
+      }
+    }
+
+    const importantDates = c.importantDates || [];
+    for(let idx=0; idx<importantDates.length; idx++){
+      const d = importantDates[idx];
+      const info = nextBirthdayInfo(d.date);
+      const [, m, day] = d.date.split("-").map(Number);
+      let next = new Date(now.getFullYear(), m-1, day);
+      if(next < now) next = new Date(now.getFullYear()+1, m-1, day);
+      const fireDate = new Date(next);
+      fireDate.setDate(fireDate.getDate() - (c.remind || 5));
+      fireDate.setHours(9,0,0,0);
+      if(fireDate > now){
+        alerts.push({
+          id: c.id*1000 + 10 + idx,
+          contactId: c.id,
+          contactName: c.name,
+          role: c.role,
+          type: "important-date",
+          label: d.label,
+          daysUntilFire: Math.max(1, Math.ceil((fireDate - now) / 86400000)),
+          previewDays: info.daysIn,
+          fireDate,
+          title: d.label,
+          body: `${d.label} de ${c.name} en ${c.remind} día${c.remind===1?"":"s"}.`,
+          previewBody: info.daysIn===0
+            ? `¡Hoy! ${d.label}.`
+            : `${d.label} en ${info.daysIn} día${info.daysIn===1?"":"s"}.`,
+        });
+      }
+    }
+
+    if(isSnoozed(c)) continue;
+
+    const t = THRESHOLDS[c.priority] || THRESHOLDS.Media;
+    const daysSince_ = daysSinceContact(c);
+    const daysUntilOverdue = (t.warn + 1) - daysSince_;
+    if(daysUntilOverdue > 0){
+      const fireDate = new Date(now);
+      fireDate.setDate(fireDate.getDate() + daysUntilOverdue);
+      fireDate.setHours(11,0,0,0);
+      const alreadyOverdue = daysSince_ > t.warn;
+      alerts.push({
+        id: c.id*1000 + 2,
+        contactId: c.id,
+        contactName: c.name,
+        role: c.role,
+        type: "overdue",
+        daysUntilFire: daysUntilOverdue,
+        previewDays: daysUntilOverdue,
+        fireDate,
+        title: "Hace tiempo que no hablan",
+        // body: para la notificación real del sistema, el día que llegue (en ese momento sí lleva harto tiempo).
+        body: `Ya va harto tiempo sin hablar con ${c.name}. ¿Le escribes hoy?`,
+        // previewBody: para mostrar en la app HOY, sin adelantar algo que todavía no pasa.
+        previewBody: alreadyOverdue
+          ? `Ya va harto tiempo sin hablar. ¿Le escribes hoy?`
+          : `Si no hablan antes, te lo recordamos en ${daysUntilOverdue} día${daysUntilOverdue===1?"":"s"}.`,
+      });
+    }
+  }
+
+  return alerts.sort((a,b)=>a.previewDays - b.previewDays);
+}
+
+async function scheduleNotifications(contacts){
+  try{
+    // Solo revisa el permiso (no lo pide) — pedirlo es responsabilidad de un botón
+    // explícito (bienvenida o Ajustes), no de este efecto en segundo plano.
+    const perm = await LocalNotifications.checkPermissions();
+    if(perm.display !== 'granted') return;
+
+    const pending = await LocalNotifications.getPending();
+    if(pending.notifications.length){
+      await LocalNotifications.cancel({ notifications: pending.notifications.map(n=>({ id:n.id })) });
+    }
+
+    const alerts = computeUpcomingAlerts(contacts);
+    if(alerts.length){
+      await LocalNotifications.schedule({
+        notifications: alerts.map(a=>({ id:a.id, title:a.title, body:a.body, schedule:{ at:a.fireDate } })),
+      });
+    }
+  }catch(e){
+    /* El plugin no está disponible fuera de un dispositivo Android/iOS real: no hacemos nada. */
+  }
+}
+
+function Avatar({name, role, photo, size=44}){
+  if(photo){
+    return (
+      <img src={photo} alt=""
+        style={{width:size, height:size, borderRadius:"999px", objectFit:"cover", flexShrink:0}} />
+    );
+  }
+  const style = ROLE_STYLE[role] || ROLE_STYLE.Conocidos;
+  return (
+    <div style={{
+        width:size, height:size, borderRadius:"999px", background:style.bg, color:"#FBF8EE",
+        display:"flex", alignItems:"center", justifyContent:"center",
+        fontFamily:"'Fraunces',serif", fontWeight:600, fontSize:size*0.38, flexShrink:0
+      }}>
+      {initials(name)}
+    </div>
+  );
+}
+
+function RoleTag({role}){
+  const s = ROLE_STYLE[role] || ROLE_STYLE.Conocidos;
+  return <span className="chip" style={{background:s.tag, color:s.tagText, border:"none"}}>{role}</span>;
+}
+
+function PriorityBadge({priority}){
+  const s = PRIORITY_STYLE[priority] || PRIORITY_STYLE.Media;
+  return (
+    <span style={{background:s.bg, color:s.text, fontWeight:700, fontSize:".72rem", padding:".3rem .7rem", borderRadius:"999px"}}>
+      Prioridad {priority}
+    </span>
+  );
+}
+
+function StatusDot({color}){
+  return <span style={{width:9, height:9, borderRadius:"999px", background:color, flexShrink:0, display:"inline-block"}} />;
+}
+
+/* ---------------- Screens ---------------- */
+
+const SORT_MODES = ["Nombre", "Más atrasados", "Próx. cumpleaños"];
+
+function HomeScreen({contacts, filter, setFilter, onOpenContact, onOpenSettings, onSetBirthdayNote, userName, compact}){
+  const roles = ["Todos","Familia","Amigos","Conocidos"];
+  const [query, setQuery] = useState("");
+  const [sortMode, setSortMode] = useState("Nombre");
+  const filtered = useMemo(()=>{
+    const byRole = filter==="Todos" ? contacts : contacts.filter(c=>c.role===filter);
+    const q = query.trim().toLowerCase();
+    const byQuery = q ? byRole.filter(c=>c.name.toLowerCase().includes(q)) : byRole;
+    const sorted = [...byQuery];
+    if(sortMode==="Más atrasados") sorted.sort((a,b)=>daysSinceContact(b)-daysSinceContact(a));
+    else if(sortMode==="Próx. cumpleaños") sorted.sort((a,b)=>{
+      const ai = a.birthday ? nextBirthdayInfo(a.birthday).daysIn : Infinity;
+      const bi = b.birthday ? nextBirthdayInfo(b.birthday).daysIn : Infinity;
+      return ai - bi;
+    });
+    else sorted.sort((a,b)=>a.name.localeCompare(b.name, "es"));
+    return sorted;
+  }, [contacts, filter, query, sortMode]);
+  const upcoming = useMemo(()=>{
+    const birthdays = contacts
+      .filter(c=>c.birthday)
+      .map(c=>({ contact:c, isBirthday:true, label:"Cumpleaños", date:c.birthday, ...nextBirthdayInfo(c.birthday) }));
+    const dates = contacts.flatMap(c =>
+      (c.importantDates||[]).map(d=>({ contact:c, isBirthday:false, label:d.label, date:d.date, dateId:d.id, ...nextBirthdayInfo(d.date) }))
+    );
+    return [...birthdays, ...dates].sort((a,b)=>a.daysIn-b.daysIn);
+  }, [contacts]);
+  const overdue = useMemo(()=>
+    contacts.filter(c=>contactStatus(c).level!=="ok").sort((a,b)=>daysSinceContact(b)-daysSinceContact(a))
+  ,[contacts]);
+  const todayEvents = useMemo(()=>upcoming.filter(u=>u.daysIn===0), [upcoming]);
+  const [prepModalId, setPrepModalId] = useState(null);
+  const [prepDraft, setPrepDraft] = useState("");
+  const prepContact = contacts.find(c=>c.id===prepModalId) || null;
+  const [notifOpen, setNotifOpen] = useState(false);
+  const alerts = useMemo(()=>computeUpcomingAlerts(contacts), [contacts]);
+
+  function openPrepModal(c){ setPrepModalId(c.id); setPrepDraft(c.birthdayNote || ""); }
+  function savePrepNote(){ onSetBirthdayNote(prepModalId, prepDraft.trim()); setPrepModalId(null); }
+  function cycleSort(){ setSortMode(m=>SORT_MODES[(SORT_MODES.indexOf(m)+1) % SORT_MODES.length]); }
+
+  return (
+    <div className="screen-enter" style={{position:"relative", height:"100%", display:"flex", flexDirection:"column"}}>
+      <div className="screen-scroll" style={{padding:"18px 18px 28px"}}>
+
+        <div style={{display:"flex", alignItems:"flex-start", justifyContent:"space-between"}}>
+          <div>
+            <h1 className="font-display" style={{fontSize:"1.7rem", fontWeight:600, margin:0, lineHeight:1.1}}>Hola, {userName}</h1>
+            <p style={{margin:"2px 0 0", fontSize:".84rem", color:"var(--ink-soft)"}}>{formatTodayLong()}</p>
+          </div>
+          <div style={{display:"flex", gap:8}}>
+            <button onClick={onOpenSettings} className="icon-btn">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </button>
+            <button onClick={()=>setNotifOpen(true)} className="icon-btn">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.8" strokeLinecap="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              {alerts.length>0 && <span className="badge-count">{alerts.length>99?"99+":alerts.length}</span>}
+            </button>
+          </div>
+        </div>
+
+        {contacts.length>0 && (
+          <div className="card" style={{marginTop:16, padding:"12px 16px"}}>
+            <p className="field-label" style={{marginBottom: (todayEvents.length===0 && overdue.length===0) ? 0 : 8}}>Resumen de hoy</p>
+            {todayEvents.length===0 && overdue.length===0 ? (
+              <p style={{margin:0, fontSize:".84rem", color:"var(--sage-deep)", fontWeight:600}}>Todo al día. No hay pendientes por ahora.</p>
+            ) : (
+              <div style={{display:"flex", flexWrap:"wrap", gap:8}}>
+                {todayEvents.filter(e=>e.isBirthday).length>0 && (
+                  <span className="chip" style={{background:"var(--terracotta-soft)", border:"none", color:"var(--terracotta-deep)"}}>
+                    {todayEvents.filter(e=>e.isBirthday).length} cumpleaños hoy
+                  </span>
+                )}
+                {todayEvents.filter(e=>!e.isBirthday).length>0 && (
+                  <span className="chip" style={{background:"var(--terracotta-soft)", border:"none", color:"var(--terracotta-deep)"}}>
+                    {todayEvents.filter(e=>!e.isBirthday).length} fecha{todayEvents.filter(e=>!e.isBirthday).length===1?"":"s"} importante{todayEvents.filter(e=>!e.isBirthday).length===1?"":"s"} hoy
+                  </span>
+                )}
+                {overdue.length>0 && (
+                  <span className="chip" style={{background:"var(--sage-soft)", border:"none", color:"var(--sage-deep)"}}>
+                    {overdue.length} {overdue.length===1?"persona atrasada":"personas atrasadas"}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {overdue.length>0 && (
+          <div className="card" style={{marginTop:16, padding:"14px 16px", display:"flex", gap:12, background:"linear-gradient(155deg, var(--terracotta-soft), var(--surface) 75%)", boxShadow:"none"}}>
+            <div style={{width:34, height:34, borderRadius:"999px", background:"var(--terracotta-deep)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, marginTop:1}}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FBF3E9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div style={{flex:1, minWidth:0}}>
+              <p style={{margin:0, fontWeight:700, fontSize:".88rem", color:"var(--terracotta-deep)"}}>
+                Hoy te toca conectar con {overdue.length} {overdue.length===1?"persona":"personas"}
+              </p>
+              <div className="hscroll" style={{display:"flex", gap:6, marginTop:8}}>
+                {overdue.slice(0,5).map(c=>(
+                  <button key={c.id} onClick={()=>onOpenContact(c.id)} className="chip"
+                    style={{background:"var(--surface)", border:"1px solid var(--terracotta)", color:"var(--terracotta-deep)"}}>
+                    {c.name.split(" ")[0]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {contacts.length===0 ? (
+          <div className="card" style={{marginTop:28, padding:"32px 22px", textAlign:"center"}}>
+            <div style={{margin:"0 auto 16px", width:64, height:64, borderRadius:"999px", background:"var(--sage-soft)",
+                  display:"flex", alignItems:"center", justifyContent:"center"}}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--sage-deep)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <p style={{fontWeight:700, margin:"0 0 6px", fontSize:".95rem"}}>Aún no tienes a nadie aquí</p>
+            <p style={{margin:0, fontSize:".82rem", color:"var(--ink-soft)", lineHeight:1.5}}>
+              Toca "Añadir" abajo para sumar a la primera persona de tu círculo.
+            </p>
+          </div>
+        ) : (
+        <React.Fragment>
+        <div style={{marginTop:16, position:"relative"}}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" strokeWidth="2" strokeLinecap="round" style={{position:"absolute", left:13, top:"50%", transform:"translateY(-50%)"}}><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input className="input" style={{paddingLeft:36, paddingRight: query ? 36 : undefined}} placeholder="Buscar por nombre..." value={query} onChange={e=>setQuery(e.target.value)} />
+          {query && (
+            <button onClick={()=>setQuery("")} style={{position:"absolute", right:10, top:"50%", transform:"translateY(-50%)", width:22, height:22, display:"flex", alignItems:"center", justifyContent:"center"}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" strokeWidth="2.2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          )}
+        </div>
+
+        {upcoming.length>0 && (
+        <div style={{marginTop:18}}>
+          <p className="field-label" style={{marginBottom:8}}>Fechas próximas</p>
+          <div className="hscroll" style={{display:"flex", gap:10, paddingBottom:4}}>
+            {upcoming.map((u)=>{
+              const {contact:c, isBirthday, label, date, daysIn, turningAge, dateId} = u;
+              const urgent = daysIn<=7;
+              return (
+                <div key={isBirthday ? `${c.id}-bday` : `${c.id}-${dateId}`} className="card" style={{minWidth:150, padding:14, scrollSnapAlign:"start", flexShrink:0, position:"relative",
+                      background: urgent ? "linear-gradient(165deg, var(--terracotta-soft), var(--surface) 70%)" : "var(--surface)"}}>
+                  <div style={{position:"absolute", top:12, right:12}}>
+                    <Avatar name={c.name} role={c.role} photo={c.photo} size={28} />
+                  </div>
+                  <p className="field-label" style={{margin:0, maxWidth:"75%", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>{c.name.split(" ")[0]}</p>
+                  <p className="font-display tabular" style={{margin:"6px 0 0", fontSize:"1.9rem", fontWeight:600, lineHeight:1,
+                        color: urgent ? "var(--terracotta-deep)" : "var(--ink)"}}>
+                    {daysIn===0 ? "Hoy" : daysIn}
+                  </p>
+                  <p style={{margin:"2px 0 0", fontSize:".7rem", color:"var(--ink-soft)"}}>
+                    {daysIn===0 ? "¡Es hoy!" : `día${daysIn===1?"":"s"}`} · {formatBirthdayShort(date)}
+                  </p>
+                  {isBirthday ? (
+                    <p style={{margin:"1px 0 0", fontSize:".7rem", color:"var(--ink-faint)"}}>
+                      Cumple {turningAge} años
+                    </p>
+                  ) : (
+                    <p style={{margin:"1px 0 0", fontSize:".7rem", color:"var(--ink-faint)", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>
+                      {label}
+                    </p>
+                  )}
+                  {isBirthday && (c.birthdayNote ? (
+                    <button onClick={()=>openPrepModal(c)}
+                      style={{marginTop:10, width:"100%", textAlign:"left", background:"var(--surface)",
+                              border:"1px solid var(--line)", borderRadius:".8rem", padding:"6px 8px"}}>
+                      <p style={{margin:0, fontSize:".68rem", fontWeight:700, color:"var(--sage-deep)"}}>✓ Preparado</p>
+                      <p style={{margin:"2px 0 0", fontSize:".68rem", color:"var(--ink-soft)", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>
+                        {c.birthdayNote}
+                      </p>
+                    </button>
+                  ) : (
+                    <button onClick={()=>openPrepModal(c)} className="chip"
+                      style={{marginTop:10, width:"100%", textAlign:"center", border:"1px solid var(--terracotta)",
+                              color:"var(--terracotta-deep)", background:"var(--surface)"}}>
+                      Prepararme
+                    </button>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        )}
+
+        <div style={{marginTop:20}}>
+          <div className="hscroll" style={{display:"flex", gap:8}}>
+            {roles.map(r=>(
+              <button key={r} className="chip" data-active={filter===r} onClick={()=>setFilter(r)}>{r}</button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{marginTop:16, display:"flex", flexDirection:"column", gap: compact ? 6 : 10}}>
+          <div style={{display:"flex", alignItems:"center", justifyContent:"space-between"}}>
+            <p className="field-label" style={{margin:0}}>Tu gente ({filtered.length})</p>
+            <button onClick={cycleSort} className="chip" style={{border:"1px solid var(--line)", display:"inline-flex", alignItems:"center", gap:5}}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+              {sortMode}
+            </button>
+          </div>
+          {filtered.map(c=>{
+            const st = contactStatus(c);
+            return (
+              <button key={c.id} onClick={()=>onOpenContact(c.id)}
+                className="card" style={{display:"flex", alignItems:"center", gap:12, padding: compact ? "8px 10px" : 12, textAlign:"left", width:"100%"}}>
+                <Avatar name={c.name} role={c.role} photo={c.photo} size={compact ? 32 : 44} />
+                <div style={{flex:1, minWidth:0}}>
+                  <p style={{margin:0, fontWeight:700, fontSize: compact ? ".84rem" : ".92rem", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>{c.name}</p>
+                  {!compact && (
+                    <div style={{display:"flex", alignItems:"center", gap:6, marginTop:2}}>
+                      <RoleTag role={c.role} />
+                      <span style={{fontSize:".72rem", color:"var(--ink-faint)"}}>· Prioridad {c.priority}</span>
+                      {c.notes && (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}>
+                          <path d="M4 19.5V6a2 2 0 0 1 2-2h9l5 5v10.5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M14 4v4a1 1 0 0 0 1 1h4"/>
+                        </svg>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div style={{textAlign:"right", flexShrink:0}}>
+                  <span className="status-pill tabular"
+                    style={{background:`color-mix(in srgb, ${st.color} 16%, var(--surface))`, color:st.color}}>
+                    <StatusDot color={st.color} />{daysSinceContact(c)}d
+                  </span>
+                  {!compact && <p style={{margin:"4px 0 0", fontSize:".68rem", color:"var(--ink-faint)"}}>sin hablar</p>}
+                </div>
+              </button>
+            );
+          })}
+          {filtered.length===0 && <p style={{color:"var(--ink-faint)", fontSize:".85rem"}}>No hay personas en este filtro todavía.</p>}
+        </div>
+        </React.Fragment>
+        )}
+      </div>
+
+      {prepModalId && prepContact && (
+        <div className="sheet-backdrop" style={{position:"absolute", inset:0, background:"rgba(54,47,36,.45)", display:"flex", alignItems:"flex-end", zIndex:45}}
+             onClick={()=>setPrepModalId(null)}>
+          <div className="card sheet-pop" onClick={e=>e.stopPropagation()}
+               style={{width:"100%", borderBottomLeftRadius:0, borderBottomRightRadius:0, padding:"16px 18px 22px"}}>
+            <div style={{width:36, height:4, background:"var(--line)", borderRadius:999, margin:"0 auto 12px"}} />
+            <p style={{fontWeight:700, margin:"0 0 4px", fontSize:".92rem"}}>Preparar el cumpleaños de {prepContact.name.split(" ")[0]}</p>
+            <p style={{margin:"0 0 10px", fontSize:".78rem", color:"var(--ink-soft)"}}>
+              Anota si lo celebra otro día, el plan que tienen, o cualquier detalle que quieras recordar.
+            </p>
+            <textarea
+              autoFocus
+              className="input" rows={4} style={{resize:"none", fontFamily:"'Karla',sans-serif", lineHeight:1.5}}
+              placeholder="Ej: este año lo celebra el sábado 6, no el día exacto..."
+              value={prepDraft} onChange={e=>setPrepDraft(e.target.value)}
+            />
+            <button onClick={savePrepNote} className="btn-primary" style={{width:"100%", padding:"12px 0", marginTop:10, fontSize:".88rem"}}>
+              Guardar nota
+            </button>
+          </div>
+        </div>
+      )}
+
+      {notifOpen && (
+        <NotificationsSheet alerts={alerts} onClose={()=>setNotifOpen(false)}
+          onOpenContact={(id)=>{ setNotifOpen(false); onOpenContact(id); }} />
+      )}
+    </div>
+  );
+}
+
+function NotificationsSheet({alerts, onClose, onOpenContact}){
+  const [permStatus, setPermStatus] = useState("unknown");
+
+  useEffect(()=>{
+    let cancelled = false;
+    LocalNotifications.checkPermissions()
+      .then(p=>{ if(!cancelled) setPermStatus(p.display); })
+      .catch(()=>{ if(!cancelled) setPermStatus("unavailable"); });
+    return ()=>{ cancelled = true; };
+  }, []);
+
+  async function enableNotifications(){
+    try{
+      const p = await LocalNotifications.requestPermissions();
+      setPermStatus(p.display);
+    }catch(e){ /* no-op */ }
+  }
+
+  return (
+    <div className="sheet-backdrop" style={{position:"absolute", inset:0, background:"rgba(54,47,36,.45)", display:"flex", alignItems:"flex-end", zIndex:46}}
+         onClick={onClose}>
+      <div className="card sheet-pop" onClick={e=>e.stopPropagation()}
+           style={{width:"100%", borderBottomLeftRadius:0, borderBottomRightRadius:0, padding:"16px 18px 22px", maxHeight:"78%", display:"flex", flexDirection:"column"}}>
+        <div style={{width:36, height:4, background:"var(--line)", borderRadius:999, margin:"0 auto 12px"}} />
+        <p style={{fontWeight:700, margin:"0 0 2px"}}>Notificaciones</p>
+        <p style={{margin:"0 0 12px", fontSize:".78rem", color:"var(--ink-soft)"}}>Próximos avisos según tu gente y tus ajustes.</p>
+
+        {permStatus==="denied" && (
+          <div className="card" style={{padding:12, marginBottom:12, background:"var(--terracotta-soft)", boxShadow:"none"}}>
+            <p style={{margin:"0 0 8px", fontSize:".8rem", color:"var(--terracotta-deep)"}}>
+              Las notificaciones están desactivadas, así que estos avisos no van a llegar. Actívalas en Ajustes del sistema {'>'} Apps {'>'} KeepBonds {'>'} Notificaciones.
+            </p>
+          </div>
+        )}
+        {permStatus==="prompt" && (
+          <button onClick={enableNotifications} className="card" style={{padding:12, marginBottom:12, textAlign:"left", boxShadow:"none"}}>
+            <p style={{margin:0, fontSize:".82rem", fontWeight:700, color:"var(--sage-deep)"}}>Activar notificaciones</p>
+            <p style={{margin:"2px 0 0", fontSize:".76rem", color:"var(--ink-soft)"}}>Toca para permitir que la app te avise.</p>
+          </button>
+        )}
+
+        <div className="screen-scroll" style={{display:"flex", flexDirection:"column", gap:8}}>
+          {alerts.map(a=>(
+            <button key={a.id} onClick={()=>onOpenContact(a.contactId)} className="card"
+              style={{display:"flex", alignItems:"center", gap:10, padding:10, textAlign:"left", boxShadow:"none"}}>
+              <div style={{width:34, height:34, borderRadius:"999px", flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center",
+                    background: a.type==="overdue" ? "var(--sage-soft)" : "var(--terracotta-soft)"}}>
+                {a.type==="overdue" ? (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--sage-deep)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                ) : a.type==="birthday" ? (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--terracotta-deep)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v4"/><path d="M5 22v-8a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v8"/><path d="M3 22h18"/><path d="M8 10V8a4 4 0 0 1 8 0v2"/></svg>
+                ) : (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--terracotta-deep)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 17.75 5.8 21l1.2-6.9L2 9.3l6.9-1L12 2l3.1 6.3 6.9 1-5 4.8 1.2 6.9z"/></svg>
+                )}
+              </div>
+              <div style={{flex:1, minWidth:0}}>
+                <p style={{margin:0, fontWeight:700, fontSize:".86rem", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>{a.contactName}</p>
+                <p style={{margin:0, fontSize:".76rem", color:"var(--ink-soft)"}}>{a.previewBody}</p>
+              </div>
+              <span style={{fontSize:".72rem", color:"var(--ink-faint)", flexShrink:0}}>{a.previewDays}d</span>
+            </button>
+          ))}
+          {alerts.length===0 && (
+            <p style={{fontSize:".85rem", color:"var(--ink-faint)", textAlign:"center", padding:"20px 0"}}>
+              No hay avisos pendientes por ahora.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Ring({pct, color, size=120, children}){
+  const bg = `conic-gradient(${color} ${pct*360}deg, var(--surface-2) 0deg)`;
+  return (
+    <div style={{width:size, height:size, borderRadius:"999px", background:bg, display:"flex", alignItems:"center", justifyContent:"center"}}>
+      <div style={{width:size-16, height:size-16, borderRadius:"999px", background:"var(--surface)", display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column"}}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+const IMPORTANT_DATE_PRESETS = ["Aniversario", "Día del padre", "Día de la madre", "Otro"];
+
+function DetailScreen({contact, onBack, onEdit, onMarkedToday, onSetRemind, onToggleNotif, onSetNotes, onSetBirthdayNote, onSnooze, onCancelSnooze, onAddImportantDate, onDeleteImportantDate}){
+  const st = contactStatus(contact);
+  const t = THRESHOLDS[contact.priority] || THRESHOLDS.Media;
+  const daysSinceLast = daysSinceContact(contact);
+  const pct = Math.min(daysSinceLast / t.warn, 1);
+  const remindOptions = [3,5,7,14];
+  const bday = contact.birthday ? nextBirthdayInfo(contact.birthday) : null;
+  const [notesDraft, setNotesDraft] = useState(contact.notes || "");
+  const [birthdayNoteDraft, setBirthdayNoteDraft] = useState(contact.birthdayNote || "");
+  const [historyExpanded, setHistoryExpanded] = useState(false);
+  const [addingDate, setAddingDate] = useState(false);
+  const [dateLabel, setDateLabel] = useState("");
+  const [dateValue, setDateValue] = useState("");
+  const snoozed = isSnoozed(contact);
+  useEffect(()=>{ setNotesDraft(contact.notes || ""); setBirthdayNoteDraft(contact.birthdayNote || ""); setHistoryExpanded(false); setAddingDate(false); setDateLabel(""); setDateValue(""); }, [contact.id]);
+
+  function saveImportantDate(){
+    if(!dateLabel.trim() || !dateValue) return;
+    onAddImportantDate({ id: makeId(), label: dateLabel.trim(), date: dateValue });
+    setAddingDate(false); setDateLabel(""); setDateValue("");
+  }
+
+  return (
+    <div className="screen-enter" style={{height:"100%", display:"flex", flexDirection:"column"}}>
+      <div style={{display:"flex", alignItems:"center", padding:"16px 14px 4px"}}>
+        <button onClick={onBack} style={{width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center"}}>
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <p style={{flex:1, textAlign:"center", fontWeight:700, fontSize:".8rem", color:"var(--ink-soft)", letterSpacing:".04em", textTransform:"uppercase"}}>Detalle de contacto</p>
+        <button onClick={onEdit} style={{width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center"}}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+        </button>
+      </div>
+
+      <div className="screen-scroll" style={{padding:"6px 20px 40px"}}>
+        <div style={{display:"flex", flexDirection:"column", alignItems:"center", marginTop:6}}>
+          <Avatar name={contact.name} role={contact.role} photo={contact.photo} size={84} />
+          <h2 className="font-display" style={{margin:"12px 0 4px", fontSize:"1.4rem", fontWeight:600}}>{contact.name}</h2>
+          <div style={{display:"flex", gap:8, alignItems:"center", flexWrap:"wrap", justifyContent:"center"}}>
+            <RoleTag role={contact.role} />
+            <PriorityBadge priority={contact.priority} />
+          </div>
+          {contact.phone && (
+            <div style={{display:"flex", gap:8, marginTop:8}}>
+              <button onClick={()=>{ hapticTap(); try{ window.location.href = `tel:${contact.phone}`; }catch(e){} }}
+                className="chip" style={{border:"1px solid var(--sage)", color:"var(--sage-deep)", display:"inline-flex", alignItems:"center", gap:5}}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--sage-deep)" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.34 1.79.66 2.65a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.43-1.23a2 2 0 0 1 2.11-.45c.86.32 1.75.54 2.65.66A2 2 0 0 1 22 16.92z"/>
+                </svg>
+                {contact.phone}
+              </button>
+              <button onClick={()=>{ hapticTap(); openWhatsApp(contact.phone, `Hola ${contact.name.split(" ")[0]}! ¿Cómo estás?`); }}
+                className="chip" style={{border:"1px solid var(--terracotta)", color:"var(--terracotta-deep)", display:"inline-flex", alignItems:"center", gap:5}}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--terracotta-deep)" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                </svg>
+                Mensaje
+              </button>
+            </div>
+          )}
+          {!contact.phone && (
+            <button onClick={onEdit} className="chip" style={{marginTop:8, border:"1px dashed var(--line)", color:"var(--ink-faint)"}}>
+              + Añadir teléfono para poder llamar o escribir
+            </button>
+          )}
+          {bday && (
+            <div style={{display:"flex", gap:8, alignItems:"center", flexWrap:"wrap", justifyContent:"center", marginTop:8}}>
+              <span className="chip" style={{background:"var(--surface-2)", border:"none", color:"var(--ink-soft)"}}>
+                {formatBirthdayLong(contact.birthday)}
+              </span>
+              <span className="chip" style={{background:"var(--terracotta-soft)", border:"none", color:"var(--terracotta-deep)"}}>
+                Cumple {bday.turningAge} años
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div style={{display:"flex", justifyContent:"center", marginTop:22}}>
+          <Ring pct={pct} color={st.color} size={140}>
+            <span className="font-display tabular" style={{fontSize:"2.1rem", fontWeight:600, lineHeight:1}}>{daysSinceLast}</span>
+            <span style={{fontSize:".68rem", color:"var(--ink-soft)", marginTop:2}}>días sin hablar</span>
+          </Ring>
+        </div>
+        <p style={{textAlign:"center", marginTop:10, fontSize:".82rem", color:st.color, fontWeight:700}}>{st.label}</p>
+        <div style={{display:"flex", justifyContent:"center", gap:16, marginTop:8}}>
+          {[{level:"ok", color:"var(--sage)", label:"Reciente"},
+            {level:"warn", color:"var(--terracotta)", label:"Moderado"},
+            {level:"alert", color:"var(--terracotta-deep)", label:"Mucho tiempo"}].map(l=>(
+            <div key={l.level} style={{display:"flex", alignItems:"center", gap:5, opacity: st.level===l.level ? 1 : .38}}>
+              <span style={{width:7, height:7, borderRadius:"999px", background:l.color}} />
+              <span style={{fontSize:".68rem", fontWeight: st.level===l.level ? 800 : 600, color:"var(--ink-soft)"}}>{l.label}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="card" style={{marginTop:14, padding:16}}>
+          {snoozed ? (
+            <React.Fragment>
+              <p style={{fontWeight:700, margin:"0 0 4px", fontSize:".9rem"}}>Pospuesto</p>
+              <p style={{margin:"0 0 10px", fontSize:".78rem", color:"var(--ink-soft)"}}>
+                No te vamos a marcar a {contact.name.split(" ")[0]} como atrasada hasta el {formatDateEs(contact.snoozedUntil)}.
+              </p>
+              <button onClick={()=>{ hapticTap(); onCancelSnooze(); }} className="segbtn" style={{textAlign:"center"}}>
+                Cancelar posponer
+              </button>
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <p style={{fontWeight:700, margin:"0 0 4px", fontSize:".9rem"}}>Posponer</p>
+              <p style={{margin:"0 0 10px", fontSize:".78rem", color:"var(--ink-soft)"}}>
+                Si no es buen momento para contactar a {contact.name.split(" ")[0]}, deja de avisarte por un tiempo.
+              </p>
+              <div style={{display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8}}>
+                <button className="segbtn" onClick={()=>{ hapticTap(); onSnooze(7); }}>1 semana</button>
+                <button className="segbtn" onClick={()=>{ hapticTap(); onSnooze(14); }}>2 semanas</button>
+                <button className="segbtn" onClick={()=>{ hapticTap(); onSnooze(30); }}>1 mes</button>
+              </div>
+            </React.Fragment>
+          )}
+        </div>
+
+        <div className="card" style={{marginTop:14, padding:16}}>
+          <p style={{fontWeight:700, margin:"0 0 4px", fontSize:".9rem"}}>Fechas importantes</p>
+          <p style={{margin:"0 0 10px", fontSize:".78rem", color:"var(--ink-soft)"}}>
+            Aniversarios u otras fechas que quieras recordar para {contact.name.split(" ")[0]}.
+          </p>
+          {contact.importantDates && contact.importantDates.length>0 && (
+            <div style={{display:"flex", flexDirection:"column", gap:8, marginBottom: addingDate ? 12 : 0}}>
+              {contact.importantDates.map(d=>{
+                const info = nextBirthdayInfo(d.date);
+                return (
+                  <div key={d.id} style={{display:"flex", alignItems:"center", gap:10, padding:"8px 10px", background:"var(--surface-2)", borderRadius:".8rem"}}>
+                    <div style={{flex:1, minWidth:0}}>
+                      <p style={{margin:0, fontWeight:700, fontSize:".84rem", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>{d.label}</p>
+                      <p style={{margin:0, fontSize:".72rem", color:"var(--ink-faint)"}}>
+                        {formatBirthdayShort(d.date)} · {info.daysIn===0 ? "hoy" : `en ${info.daysIn} día${info.daysIn===1?"":"s"}`}
+                      </p>
+                    </div>
+                    <button onClick={()=>{ hapticTap(); onDeleteImportantDate(d.id); }} style={{width:26, height:26, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0}}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" strokeWidth="2.2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {addingDate ? (
+            <div>
+              <div className="hscroll" style={{display:"flex", gap:6, marginBottom:8}}>
+                {IMPORTANT_DATE_PRESETS.map(p=>(
+                  <button key={p} className="chip" data-active={dateLabel===p} onClick={()=>setDateLabel(p)}>{p}</button>
+                ))}
+              </div>
+              <input className="input" placeholder="Nombre de la fecha" value={dateLabel} onChange={e=>setDateLabel(e.target.value)} style={{marginBottom:8}} />
+              <DateSelect value={dateValue} onChange={setDateValue} maxYear={new Date().getFullYear()+1} />
+              <div style={{display:"flex", gap:8, marginTop:10}}>
+                <button onClick={()=>{ setAddingDate(false); setDateLabel(""); setDateValue(""); }} className="segbtn" style={{textAlign:"center", flex:1}}>Cancelar</button>
+                <button onClick={()=>{ hapticTap(); saveImportantDate(); }} className="btn-primary" style={{flex:1, padding:"10px 0", fontSize:".85rem"}}>Guardar</button>
+              </div>
+            </div>
+          ) : (
+            <button onClick={()=>setAddingDate(true)} className="segbtn" style={{textAlign:"center"}}>
+              + Añadir fecha
+            </button>
+          )}
+        </div>
+
+        <div className="card" style={{marginTop:14, padding:16}}>
+          <p style={{fontWeight:700, margin:"0 0 4px", fontSize:".9rem"}}>Alerta de cumpleaños</p>
+          <p style={{margin:"0 0 10px", fontSize:".78rem", color:"var(--ink-soft)"}}>
+            Avisarme antes del cumpleaños de {contact.name.split(" ")[0]}
+            {bday && ` · faltan ${bday.daysIn} día${bday.daysIn===1?"":"s"}`}
+          </p>
+          <div style={{display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8}}>
+            {remindOptions.map(d=>(
+              <button key={d} className="segbtn" data-active={contact.remind===d} onClick={()=>onSetRemind(d)}>
+                {d}d
+              </button>
+            ))}
+          </div>
+          <div style={{marginTop:12}}>
+            <p className="field-label" style={{marginBottom:6}}>Nota para este cumpleaños</p>
+            <textarea
+              className="input" rows={2} style={{resize:"none", fontFamily:"'Karla',sans-serif", lineHeight:1.5}}
+              placeholder="Ej: lo celebra el sábado 6, no el día exacto..."
+              value={birthdayNoteDraft}
+              onChange={e=>setBirthdayNoteDraft(e.target.value)}
+              onBlur={()=>onSetBirthdayNote(birthdayNoteDraft)}
+            />
+          </div>
+        </div>
+
+        <div className="card" style={{marginTop:14, padding:16, display:"flex", alignItems:"center", justifyContent:"space-between"}}>
+          <div>
+            <p style={{fontWeight:700, margin:0, fontSize:".9rem"}}>Notificaciones</p>
+            <p style={{margin:"2px 0 0", fontSize:".78rem", color:"var(--ink-soft)"}}>Avisos de este contacto</p>
+          </div>
+          <button className="switch-track" data-on={contact.notif} onClick={onToggleNotif}>
+            <span className="switch-thumb" />
+          </button>
+        </div>
+
+        {contact.history && contact.history.length>0 && (
+          <div className="card" style={{marginTop:14, padding:16}}>
+            <p style={{fontWeight:700, margin:"0 0 10px", fontSize:".9rem"}}>Historial de contacto</p>
+            <div style={{display:"flex", flexDirection:"column", gap:10}}>
+              {(historyExpanded ? contact.history : contact.history.slice(0,5)).map((h, i)=>(
+                <div key={h.date+i} style={{display:"flex", flexDirection:"column", gap:3}}>
+                  <div style={{display:"flex", alignItems:"center", gap:10}}>
+                    <div style={{width:8, height:8, borderRadius:"999px", background: i===0 ? "var(--sage)" : "var(--line)", flexShrink:0}} />
+                    <span style={{fontSize:".84rem", fontWeight:600}}>{formatDateEs(h.date)}</span>
+                    <span style={{fontSize:".76rem", color:"var(--ink-faint)"}}>· hace {daysSince(h.date)} {daysSince(h.date)===1?"día":"días"}</span>
+                  </div>
+                  {h.note && (
+                    <p style={{margin:"0 0 0 18px", fontSize:".78rem", color:"var(--ink-soft)", fontStyle:"italic"}}>
+                      "{h.note}"
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+            {contact.history.length>5 && (
+              <button onClick={()=>setHistoryExpanded(x=>!x)}
+                style={{marginTop:10, fontSize:".76rem", fontWeight:700, color:"var(--sage-deep)"}}>
+                {historyExpanded ? "Ver menos" : `Ver todo el historial (${contact.history.length})`}
+              </button>
+            )}
+          </div>
+        )}
+
+        <div className="card" style={{marginTop:14, padding:16}}>
+          <p style={{fontWeight:700, margin:"0 0 4px", fontSize:".9rem"}}>Notas</p>
+          <p style={{margin:"0 0 10px", fontSize:".78rem", color:"var(--ink-soft)"}}>Todo lo que quieras recordar de esta persona</p>
+          <textarea
+            className="input"
+            rows={4}
+            style={{resize:"none", fontFamily:"'Karla',sans-serif", lineHeight:1.5}}
+            placeholder="Sin notas todavía. Anota qué le gusta, cómo está, temas pendientes..."
+            value={notesDraft}
+            onChange={e=>setNotesDraft(e.target.value)}
+            onBlur={()=>onSetNotes(notesDraft)}
+          />
+        </div>
+
+        <button onClick={()=>{ hapticTap(ImpactStyle.Medium); onMarkedToday(); }} className="btn-primary" style={{width:"100%", padding:"14px 0", marginTop:20, fontSize:".95rem"}}>
+          Marcar como hablado hoy
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function AddScreen({onSave, onCancel, defaultFreq}){
+  const [mode, setMode] = useState("manual");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [photo, setPhoto] = useState("");
+  const [role, setRole] = useState("Familia");
+  const [birthday, setBirthday] = useState("");
+  const [priority, setPriority] = useState("Media");
+  const [freq, setFreq] = useState(defaultFreq || "Quincenal");
+  const [notes, setNotes] = useState("");
+  const [error, setError] = useState("");
+  const [deviceQuery, setDeviceQuery] = useState("");
+  const [pickedDevice, setPickedDevice] = useState(null);
+  const [deviceContacts, setDeviceContacts] = useState([]);
+  const [contactsStatus, setContactsStatus] = useState("idle"); // idle | loading | error | loaded
+  const [contactsErrorMsg, setContactsErrorMsg] = useState("");
+
+  const roles = ["Familia","Amigos","Conocidos"];
+  const priorities = ["Alta","Media","Baja"];
+  const freqs = ["Semanal","Quincenal","Mensual","Trimestral"];
+  const q = deviceQuery.trim().toLowerCase();
+  const filteredDevice = q
+    ? deviceContacts.filter(d=>d.name.toLowerCase().includes(q))
+    : deviceContacts.slice(0, 30);
+
+  async function loadDeviceContacts(){
+    setContactsStatus("loading"); setContactsErrorMsg("");
+
+    // Llamamos a getContacts directamente: el propio plugin revisa el permiso,
+    // muestra el diálogo del sistema si hace falta, y sigue solo si lo aceptas.
+    // (Pedir el permiso aparte y luego llamar a getContacts duplica el flujo
+    // de permisos de Android y puede hacer que el segundo pedido falle.)
+    try{
+      const { contacts } = await Contacts.getContacts({ projection:{ name:true, phones:true, birthday:true } });
+      const mapped = contacts
+        .map(c=>({
+          id: c.contactId,
+          name: c.name?.display || [c.name?.given, c.name?.family].filter(Boolean).join(" "),
+          phone: c.phones?.[0]?.number || "",
+          birthday: birthdayPayloadToIso(c.birthday),
+        }))
+        .filter(c=>c.name && c.name.trim())
+        .sort((a,b)=>a.name.localeCompare(b.name, "es"));
+      setDeviceContacts(mapped);
+      setContactsStatus("loaded");
+    }catch(err){
+      setContactsStatus("error");
+      const detail = err?.message || err?.errorMessage || (typeof err === "string" ? err : "");
+      setContactsErrorMsg(
+        `No se pudo acceder a tus contactos${detail ? `: ${detail}` : "."} ` +
+        `Si ya diste el permiso y sigue fallando, revísalo en Ajustes del sistema > Apps > KeepBonds > Permisos > Contactos.`
+      );
+      console.error("Contacts.getContacts error", err);
+    }
+  }
+
+  useEffect(()=>{
+    if(mode==="contacts" && contactsStatus==="idle"){
+      loadDeviceContacts();
+    }
+  }, [mode, contactsStatus]);
+
+  function switchMode(m){
+    setMode(m); setError("");
+    if(m==="manual"){ setPickedDevice(null); setName(""); setBirthday(""); setPhone(""); setPhoto(""); }
+  }
+
+  async function choosePhoto(){
+    const dataUrl = await pickContactPhoto();
+    if(dataUrl) setPhoto(dataUrl);
+  }
+
+  function pickDevice(d){
+    setPickedDevice(d);
+    setName(d.name);
+    setPhone(d.phone || "");
+    if(d.birthday) setBirthday(d.birthday);
+    setError("");
+  }
+
+  function submit(){
+    if(mode==="contacts" && !pickedDevice){ setError("Selecciona un contacto de la lista."); return; }
+    if(!name.trim()){ setError("Ingresa un nombre para guardar el contacto."); return; }
+    if(birthday){
+      const today = todayISO();
+      if(birthday > today){ setError("La fecha de cumpleaños no puede ser en el futuro."); return; }
+      const year = Number(birthday.slice(0,4));
+      const thisYear = new Date().getFullYear();
+      if(year < thisYear - 120){ setError("Revisa el año de nacimiento, parece incorrecto."); return; }
+    }
+    hapticTap(ImpactStyle.Medium);
+    onSave({ name:name.trim(), phone:phone.trim(), photo, role, birthday, priority, freq, notes:notes.trim() });
+    setName(""); setPhone(""); setPhoto(""); setBirthday(""); setRole("Familia"); setPriority("Media"); setFreq(defaultFreq || "Quincenal"); setNotes(""); setError("");
+    setPickedDevice(null); setDeviceQuery(""); setMode("manual");
+  }
+
+  const showRest = mode==="manual" || (mode==="contacts" && pickedDevice);
+
+  return (
+    <div className="screen-enter" style={{height:"100%", display:"flex", flexDirection:"column"}}>
+      <div style={{display:"flex", alignItems:"center", padding:"16px 14px 4px"}}>
+        <button onClick={onCancel} style={{fontSize:".9rem", color:"var(--ink-soft)", padding:"6px 4px"}}>
+          Cancelar
+        </button>
+        <p style={{flex:1, textAlign:"center", fontWeight:700, fontSize:".8rem", color:"var(--ink-soft)", letterSpacing:".04em", textTransform:"uppercase"}}>Añadir persona</p>
+        <button onClick={submit} style={{fontSize:".9rem", fontWeight:700, color:"var(--terracotta-deep)", padding:"6px 4px"}}>
+          Guardar
+        </button>
+      </div>
+
+      {error && (
+        <p style={{margin:"8px 20px 0", padding:"10px 12px", background:"var(--terracotta-soft)", color:"var(--terracotta-deep)",
+              borderRadius:".8rem", fontSize:".82rem", fontWeight:600}}>
+          {error}
+        </p>
+      )}
+
+      <div className="screen-scroll" style={{padding:"10px 20px 40px", display:"flex", flexDirection:"column", gap:18}}>
+        <h2 className="font-display" style={{margin:0, fontSize:"1.3rem", fontWeight:600}}>Sumar a tu círculo</h2>
+
+        <div style={{display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:8}}>
+          <button className="segbtn" data-active={mode==="manual"} onClick={()=>switchMode("manual")}>Manual</button>
+          <button className="segbtn" data-active={mode==="contacts"} onClick={()=>switchMode("contacts")}>Desde contactos</button>
+        </div>
+
+        {mode==="manual" && (
+          <React.Fragment>
+            <div style={{display:"flex", flexDirection:"column", alignItems:"center", gap:10}}>
+              <Avatar name={name || "?"} role={role} photo={photo} size={72} />
+              <div style={{display:"flex", gap:8}}>
+                <button onClick={choosePhoto} className="segbtn" style={{padding:".5rem .9rem"}}>
+                  {photo ? "Cambiar foto" : "Añadir foto"}
+                </button>
+                {photo && (
+                  <button onClick={()=>setPhoto("")} className="segbtn" style={{padding:".5rem .9rem", color:"var(--terracotta-deep)"}}>
+                    Quitar
+                  </button>
+                )}
+              </div>
+            </div>
+            <div>
+              <p className="field-label" style={{marginBottom:6}}>Nombre</p>
+              <input className="input" placeholder="Ej: María José Fuentes" value={name} onChange={e=>{setName(e.target.value); setError("");}} />
+            </div>
+            <div>
+              <p className="field-label" style={{marginBottom:6}}>Teléfono (opcional)</p>
+              <input type="tel" className="input" placeholder="Ej: +56 9 1234 5678" value={phone} onChange={e=>setPhone(e.target.value)} />
+            </div>
+          </React.Fragment>
+        )}
+
+        {mode==="contacts" && !pickedDevice && (
+          <div>
+            <p className="field-label" style={{marginBottom:6}}>Elige de tus contactos</p>
+
+            {contactsStatus==="loading" && (
+              <p style={{fontSize:".82rem", color:"var(--ink-soft)"}}>Cargando tus contactos...</p>
+            )}
+
+            {contactsStatus==="error" && (
+              <div className="card" style={{padding:12}}>
+                <p style={{margin:"0 0 10px", fontSize:".8rem", color:"var(--terracotta-deep)"}}>{contactsErrorMsg}</p>
+                <button onClick={loadDeviceContacts} className="segbtn" style={{textAlign:"center"}}>Reintentar</button>
+              </div>
+            )}
+
+            {contactsStatus==="loaded" && (
+              <React.Fragment>
+                <input className="input" placeholder="Buscar..." value={deviceQuery} onChange={e=>setDeviceQuery(e.target.value)} style={{marginBottom:10}} />
+                {!q && deviceContacts.length>30 && (
+                  <p style={{margin:"-4px 0 8px", fontSize:".72rem", color:"var(--ink-faint)"}}>
+                    Mostrando 30 de {deviceContacts.length}. Escribe para buscar el resto.
+                  </p>
+                )}
+                <div style={{display:"flex", flexDirection:"column", gap:6, maxHeight:220, overflowY:"auto"}}>
+                  {filteredDevice.map(d=>(
+                    <button key={d.id} onClick={()=>pickDevice(d)} className="card"
+                      style={{display:"flex", alignItems:"center", gap:10, padding:10, textAlign:"left", boxShadow:"none"}}>
+                      <div style={{width:36, height:36, borderRadius:"999px", background:"var(--surface-2)", color:"var(--ink-soft)",
+                            display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Fraunces',serif", fontWeight:600, fontSize:".85rem", flexShrink:0}}>
+                        {initials(d.name)}
+                      </div>
+                      <div style={{minWidth:0}}>
+                        <p style={{margin:0, fontWeight:700, fontSize:".86rem", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>{d.name}</p>
+                        <p style={{margin:0, fontSize:".72rem", color:"var(--ink-faint)"}}>{d.phone || "Sin teléfono"}</p>
+                      </div>
+                    </button>
+                  ))}
+                  {filteredDevice.length===0 && (
+                    <p style={{fontSize:".8rem", color:"var(--ink-faint)"}}>
+                      {deviceContacts.length===0 ? "No se encontraron contactos en tu teléfono." : "Sin resultados."}
+                    </p>
+                  )}
+                </div>
+              </React.Fragment>
+            )}
+          </div>
+        )}
+
+        {mode==="contacts" && pickedDevice && (
+          <div className="card" style={{display:"flex", alignItems:"center", gap:10, padding:12}}>
+            <div style={{width:38, height:38, borderRadius:"999px", background:"var(--sage-soft)", color:"var(--sage-deep)",
+                  display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Fraunces',serif", fontWeight:600, fontSize:".9rem", flexShrink:0}}>
+              {initials(pickedDevice.name)}
+            </div>
+            <div style={{flex:1, minWidth:0}}>
+              <p style={{margin:0, fontWeight:700, fontSize:".88rem"}}>{pickedDevice.name}</p>
+              <p style={{margin:0, fontSize:".72rem", color:"var(--ink-faint)"}}>{pickedDevice.phone}</p>
+            </div>
+            <button onClick={()=>{setPickedDevice(null); setName("");}} style={{fontSize:".76rem", fontWeight:700, color:"var(--terracotta-deep)"}}>
+              Cambiar
+            </button>
+          </div>
+        )}
+
+        {showRest && (
+          <React.Fragment>
+            <div>
+              <p className="field-label" style={{marginBottom:6}}>Rol</p>
+              <div style={{display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8}}>
+                {roles.map(r=> <button key={r} className="segbtn" data-active={role===r} onClick={()=>setRole(r)}>{r}</button>)}
+              </div>
+            </div>
+
+            <div>
+              <p className="field-label" style={{marginBottom:6}}>Cumpleaños</p>
+              <DateSelect value={birthday} onChange={v=>{setBirthday(v); setError("");}} allowClear />
+            </div>
+
+            <div>
+              <p className="field-label" style={{marginBottom:6}}>Prioridad</p>
+              <div style={{display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8}}>
+                {priorities.map(p=> <button key={p} className="segbtn" data-active={priority===p} onClick={()=>setPriority(p)}>{p}</button>)}
+              </div>
+            </div>
+
+            <div>
+              <p className="field-label" style={{marginBottom:6}}>Frecuencia deseada de recordatorio</p>
+              <div style={{display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:8}}>
+                {freqs.map(f=> <button key={f} className="segbtn" data-active={freq===f} onClick={()=>setFreq(f)}>{f}</button>)}
+              </div>
+            </div>
+
+            <div>
+              <p className="field-label" style={{marginBottom:6}}>Notas · qué le gusta o de qué hablar</p>
+              <textarea className="input" rows={4} style={{resize:"none", fontFamily:"'Karla',sans-serif", lineHeight:1.5}}
+                placeholder="Ej: le encanta el senderismo, anda buscando departamento, le gustan los vinilos de jazz..."
+                value={notes} onChange={e=>setNotes(e.target.value)} />
+            </div>
+          </React.Fragment>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EditContactScreen({contact, onSave, onCancel, onDelete}){
+  const [name, setName] = useState(contact.name);
+  const [phone, setPhone] = useState(contact.phone || "");
+  const [photo, setPhoto] = useState(contact.photo || "");
+  const [role, setRole] = useState(contact.role);
+  const [birthday, setBirthday] = useState(contact.birthday || "");
+  const [priority, setPriority] = useState(contact.priority);
+  const [freq, setFreq] = useState(contact.freq || "Quincenal");
+  const [error, setError] = useState("");
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+
+  const roles = ["Familia","Amigos","Conocidos"];
+  const priorities = ["Alta","Media","Baja"];
+  const freqs = ["Semanal","Quincenal","Mensual","Trimestral"];
+
+  async function choosePhoto(){
+    const dataUrl = await pickContactPhoto();
+    if(dataUrl) setPhoto(dataUrl);
+  }
+
+  function submit(){
+    if(!name.trim()){ setError("Ingresa un nombre para guardar los cambios."); return; }
+    if(birthday){
+      const today = todayISO();
+      if(birthday > today){ setError("La fecha de cumpleaños no puede ser en el futuro."); return; }
+      const year = Number(birthday.slice(0,4));
+      const thisYear = new Date().getFullYear();
+      if(year < thisYear - 120){ setError("Revisa el año de nacimiento, parece incorrecto."); return; }
+    }
+    hapticTap(ImpactStyle.Medium);
+    onSave({ name:name.trim(), phone:phone.trim(), photo, role, birthday, priority, freq });
+  }
+
+  return (
+    <div className="screen-enter" style={{height:"100%", display:"flex", flexDirection:"column"}}>
+      <div style={{display:"flex", alignItems:"center", padding:"16px 14px 4px"}}>
+        <button onClick={onCancel} style={{fontSize:".9rem", color:"var(--ink-soft)", padding:"6px 4px"}}>
+          Cancelar
+        </button>
+        <p style={{flex:1, textAlign:"center", fontWeight:700, fontSize:".8rem", color:"var(--ink-soft)", letterSpacing:".04em", textTransform:"uppercase"}}>Editar persona</p>
+        <button onClick={submit} style={{fontSize:".9rem", fontWeight:700, color:"var(--terracotta-deep)", padding:"6px 4px"}}>
+          Guardar
+        </button>
+      </div>
+
+      {error && (
+        <p style={{margin:"8px 20px 0", padding:"10px 12px", background:"var(--terracotta-soft)", color:"var(--terracotta-deep)",
+              borderRadius:".8rem", fontSize:".82rem", fontWeight:600}}>
+          {error}
+        </p>
+      )}
+
+      <div className="screen-scroll" style={{padding:"10px 20px 40px", display:"flex", flexDirection:"column", gap:18}}>
+        <div style={{display:"flex", flexDirection:"column", alignItems:"center", gap:10}}>
+          <Avatar name={name || "?"} role={role} photo={photo} size={84} />
+          <div style={{display:"flex", gap:8}}>
+            <button onClick={choosePhoto} className="segbtn" style={{padding:".5rem .9rem"}}>
+              {photo ? "Cambiar foto" : "Añadir foto"}
+            </button>
+            {photo && (
+              <button onClick={()=>setPhoto("")} className="segbtn" style={{padding:".5rem .9rem", color:"var(--terracotta-deep)"}}>
+                Quitar
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <p className="field-label" style={{marginBottom:6}}>Nombre</p>
+          <input className="input" value={name} onChange={e=>{setName(e.target.value); setError("");}} />
+        </div>
+
+        <div>
+          <p className="field-label" style={{marginBottom:6}}>Teléfono (opcional)</p>
+          <input type="tel" className="input" placeholder="Ej: +56 9 1234 5678" value={phone} onChange={e=>setPhone(e.target.value)} />
+        </div>
+
+        <div>
+          <p className="field-label" style={{marginBottom:6}}>Rol</p>
+          <div style={{display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8}}>
+            {roles.map(r=> <button key={r} className="segbtn" data-active={role===r} onClick={()=>setRole(r)}>{r}</button>)}
+          </div>
+        </div>
+
+        <div>
+          <p className="field-label" style={{marginBottom:6}}>Cumpleaños</p>
+          <DateSelect value={birthday} onChange={v=>{setBirthday(v); setError("");}} allowClear />
+        </div>
+
+        <div>
+          <p className="field-label" style={{marginBottom:6}}>Prioridad</p>
+          <div style={{display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8}}>
+            {priorities.map(p=> <button key={p} className="segbtn" data-active={priority===p} onClick={()=>setPriority(p)}>{p}</button>)}
+          </div>
+        </div>
+
+        <div>
+          <p className="field-label" style={{marginBottom:6}}>Frecuencia deseada de recordatorio</p>
+          <div style={{display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:8}}>
+            {freqs.map(f=> <button key={f} className="segbtn" data-active={freq===f} onClick={()=>setFreq(f)}>{f}</button>)}
+          </div>
+        </div>
+
+        <button
+          onClick={()=>{ hapticTap(); if(confirmingDelete){ onDelete(); } else setConfirmingDelete(true); }}
+          className="segbtn" style={{textAlign:"center", color:"var(--terracotta-deep)", borderColor:"var(--terracotta)", marginTop:8}}>
+          {confirmingDelete ? "Toca de nuevo para eliminar a esta persona" : "Eliminar contacto"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function SettingsScreen({settings, onUpdate, onBack, onOpenBackup, onRestoreSample, onDeleteAll}){
+  const [nameDraft, setNameDraft] = useState(settings.userName);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [notifStatus, setNotifStatus] = useState("unknown");
+  const [contactsStatus, setContactsStatus] = useState("unknown");
+  const remindOptions = [3,5,7,14];
+  const freqs = ["Semanal","Quincenal","Mensual","Trimestral"];
+
+  useEffect(()=>{
+    let cancelled = false;
+    LocalNotifications.checkPermissions()
+      .then(p=>{ if(!cancelled) setNotifStatus(p.display); })
+      .catch(()=>{ if(!cancelled) setNotifStatus("unavailable"); });
+    Contacts.checkPermissions()
+      .then(p=>{ if(!cancelled) setContactsStatus(p.contacts); })
+      .catch(()=>{ if(!cancelled) setContactsStatus("unavailable"); });
+    return ()=>{ cancelled = true; };
+  }, []);
+
+  async function requestNotifPerm(){
+    try{ const p = await LocalNotifications.requestPermissions(); setNotifStatus(p.display); }catch(e){ /* no-op */ }
+  }
+  async function requestContactsPerm(){
+    try{
+      // Pedimos el permiso a través de getContacts para no duplicar el flujo
+      // de permisos de Android (ver nota en AddScreen).
+      await Contacts.getContacts({ projection:{ name:true } });
+      setContactsStatus("granted");
+    }catch(e){
+      Contacts.checkPermissions().then(p=>setContactsStatus(p.contacts)).catch(()=>setContactsStatus("denied"));
+    }
+  }
+
+  return (
+    <div className="screen-enter" style={{height:"100%", display:"flex", flexDirection:"column"}}>
+      <div style={{display:"flex", alignItems:"center", padding:"16px 14px 4px"}}>
+        <button onClick={onBack} style={{width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center"}}>
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <p style={{flex:1, textAlign:"center", fontWeight:700, fontSize:".8rem", color:"var(--ink-soft)", letterSpacing:".04em", textTransform:"uppercase"}}>Ajustes</p>
+        <div style={{width:36}} />
+      </div>
+
+      <div className="screen-scroll" style={{padding:"10px 20px 40px", display:"flex", flexDirection:"column", gap:22}}>
+
+        <div>
+          <p className="field-label" style={{marginBottom:10}}>Perfil</p>
+          <div className="card" style={{padding:14}}>
+            <p className="field-label" style={{marginBottom:6}}>Tu nombre</p>
+            <input className="input" value={nameDraft}
+              onChange={e=>setNameDraft(e.target.value)}
+              onBlur={()=>onUpdate("userName", nameDraft.trim() || "Tú")} />
+            <p style={{margin:"6px 0 0", fontSize:".72rem", color:"var(--ink-faint)"}}>Así te saluda la pantalla de Inicio.</p>
+          </div>
+        </div>
+
+        <div>
+          <p className="field-label" style={{marginBottom:10}}>Permisos</p>
+          <div className="card" style={{padding:14, display:"flex", flexDirection:"column", gap:14}}>
+            <div style={{display:"flex", alignItems:"center", gap:12}}>
+              <div style={{width:38, height:38, borderRadius:"999px", background:"var(--sage-soft)", flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center"}}>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--sage-deep)" strokeWidth="1.8" strokeLinecap="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              </div>
+              <div style={{flex:1, minWidth:0}}>
+                <p style={{margin:0, fontWeight:700, fontSize:".88rem"}}>Notificaciones</p>
+                <p style={{margin:"2px 0 0", fontSize:".76rem", color:"var(--ink-soft)"}}>Avisos de cumpleaños y de contacto</p>
+              </div>
+              <button onClick={requestNotifPerm} className="segbtn" data-active={notifStatus==="granted"} style={{flexShrink:0, padding:".5rem .8rem"}}>
+                {notifStatus==="granted" ? "Activado" : "Activar"}
+              </button>
+            </div>
+            <div style={{display:"flex", alignItems:"center", gap:12}}>
+              <div style={{width:38, height:38, borderRadius:"999px", background:"var(--terracotta-soft)", flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center"}}>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--terracotta-deep)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div style={{flex:1, minWidth:0}}>
+                <p style={{margin:0, fontWeight:700, fontSize:".88rem"}}>Contactos</p>
+                <p style={{margin:"2px 0 0", fontSize:".76rem", color:"var(--ink-soft)"}}>Para añadir personas desde tu agenda</p>
+              </div>
+              <button onClick={requestContactsPerm} className="segbtn" data-active={contactsStatus==="granted"} style={{flexShrink:0, padding:".5rem .8rem"}}>
+                {contactsStatus==="granted" ? "Activado" : "Activar"}
+              </button>
+            </div>
+            {(notifStatus==="denied" || contactsStatus==="denied") && (
+              <p style={{margin:0, fontSize:".72rem", color:"var(--ink-faint)"}}>
+                Si el botón no hace nada, es porque ya lo rechazaste antes: actívalo desde Ajustes del sistema {'>'} Apps {'>'} KeepBonds {'>'} Permisos.
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <p className="field-label" style={{marginBottom:10}}>Apariencia</p>
+          <div className="card" style={{padding:14, display:"flex", flexDirection:"column", gap:14}}>
+            <div style={{display:"flex", alignItems:"center", justifyContent:"space-between"}}>
+              <div>
+                <p style={{fontWeight:700, margin:0, fontSize:".88rem"}}>Tema oscuro</p>
+                <p style={{margin:"2px 0 0", fontSize:".76rem", color:"var(--ink-soft)"}}>Cambia la apariencia de toda la app</p>
+              </div>
+              <button className="switch-track" data-on={settings.theme==="dark"}
+                onClick={()=>onUpdate("theme", settings.theme==="dark" ? "light" : "dark")}>
+                <span className="switch-thumb" />
+              </button>
+            </div>
+            <div style={{display:"flex", alignItems:"center", justifyContent:"space-between"}}>
+              <div>
+                <p style={{fontWeight:700, margin:0, fontSize:".88rem"}}>Vista compacta</p>
+                <p style={{margin:"2px 0 0", fontSize:".76rem", color:"var(--ink-soft)"}}>Lista de personas más densa</p>
+              </div>
+              <button className="switch-track" data-on={settings.compact}
+                onClick={()=>onUpdate("compact", !settings.compact)}>
+                <span className="switch-thumb" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <p className="field-label" style={{marginBottom:10}}>Recordatorios por defecto</p>
+          <div className="card" style={{padding:14}}>
+            <p className="field-label" style={{marginBottom:6}}>Avisarme de cumpleaños con</p>
+            <div style={{display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8}}>
+              {remindOptions.map(d=>(
+                <button key={d} className="segbtn" data-active={settings.defaultRemind===d} onClick={()=>onUpdate("defaultRemind", d)}>
+                  {d}d
+                </button>
+              ))}
+            </div>
+            <p className="field-label" style={{margin:"14px 0 6px"}}>Frecuencia de contacto deseada</p>
+            <div style={{display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:8}}>
+              {freqs.map(f=>(
+                <button key={f} className="segbtn" data-active={settings.defaultFreq===f} onClick={()=>onUpdate("defaultFreq", f)}>
+                  {f}
+                </button>
+              ))}
+            </div>
+            <p style={{margin:"10px 0 0", fontSize:".72rem", color:"var(--ink-faint)"}}>Se usan al añadir una persona nueva; luego puedes ajustarlos por contacto.</p>
+          </div>
+        </div>
+
+        <div>
+          <p className="field-label" style={{marginBottom:10}}>Datos</p>
+          <div className="card" style={{padding:14, display:"flex", flexDirection:"column", gap:10}}>
+            <p style={{margin:0, fontSize:".78rem", color:"var(--ink-soft)"}}>
+              Modo sin conexión: tus datos se guardan solo en este dispositivo, sin servidor ni nube.
+            </p>
+            <button onClick={onOpenBackup} className="segbtn" style={{textAlign:"center"}}>
+              Respaldo local (exportar / importar)
+            </button>
+            <button onClick={onRestoreSample} className="segbtn" style={{textAlign:"center"}}>
+              Restaurar datos de ejemplo
+            </button>
+            <button
+              onClick={()=>{ if(confirmingDelete){ onDeleteAll(); setConfirmingDelete(false); } else setConfirmingDelete(true); }}
+              className="segbtn" style={{textAlign:"center", color:"var(--terracotta-deep)", borderColor:"var(--terracotta)"}}>
+              {confirmingDelete ? "Toca de nuevo para borrar todo" : "Borrar todos los datos"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function QuickLogSheet({contacts, onClose, onLogCall, onToast}){
+  const [callingId, setCallingId] = useState(null);
+  const [noteId, setNoteId] = useState(null);
+  const [noteDraft, setNoteDraft] = useState("");
+
+  const today = todayISO();
+  const pending = useMemo(()=>
+    contacts
+      .filter(c => !(c.history && c.history[0] && c.history[0].date===today))
+      .sort((a,b)=>daysSinceContact(b)-daysSinceContact(a))
+  ,[contacts, today]);
+
+  function callContact(c){
+    hapticTap();
+    if(!c.phone){
+      onToast(`${c.name.split(" ")[0]} no tiene teléfono guardado. Agrégalo editando el contacto.`);
+      return;
+    }
+    try{ window.location.href = `tel:${c.phone}`; }catch(e){ /* no-op */ }
+    setCallingId(c.id);
+  }
+  function messageContact(c){
+    hapticTap();
+    openWhatsApp(c.phone, `Hola ${c.name.split(" ")[0]}! ¿Cómo estás?`);
+  }
+  function openNoteFor(id){
+    hapticTap();
+    setCallingId(null);
+    setNoteId(id);
+    setNoteDraft("");
+  }
+  function saveNote(){
+    hapticTap(ImpactStyle.Medium);
+    onLogCall(noteId, noteDraft);
+    setNoteId(null); setNoteDraft("");
+  }
+
+  return (
+    <div className="sheet-backdrop" style={{position:"absolute", inset:0, background:"rgba(54,47,36,.4)", display:"flex", alignItems:"flex-end", zIndex:44}}
+         onClick={onClose}>
+      <div className="card sheet-pop" onClick={e=>e.stopPropagation()}
+           style={{width:"100%", borderBottomLeftRadius:0, borderBottomRightRadius:0, padding:"16px 18px 22px", maxHeight:"78%", display:"flex", flexDirection:"column"}}>
+        <div style={{width:36, height:4, background:"var(--line)", borderRadius:999, margin:"0 auto 12px"}} />
+        <p style={{fontWeight:700, margin:"0 0 2px"}}>Gente con la que no has hablado</p>
+        <p style={{margin:"0 0 12px", fontSize:".78rem", color:"var(--ink-soft)"}}>Ordenado de más a menos tiempo sin hablar.</p>
+        <div className="screen-scroll" style={{display:"flex", flexDirection:"column", gap:8}}>
+          {pending.map(c=>{
+            const isCalling = callingId===c.id;
+            const isNoting = noteId===c.id;
+            return (
+              <div key={c.id} className="card" style={{padding:10, boxShadow:"none", border:"1px solid var(--line)"}}>
+                <div style={{display:"flex", alignItems:"center", gap:10}}>
+                  <Avatar name={c.name} role={c.role} photo={c.photo} size={34} />
+                  <div style={{flex:1, minWidth:0}}>
+                    <p style={{margin:0, fontWeight:700, fontSize:".86rem", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>{c.name}</p>
+                    <p style={{margin:0, fontSize:".72rem", color:"var(--ink-faint)"}}>{daysSinceContact(c)}d sin hablar · {c.role}</p>
+                  </div>
+                  {!isCalling && !isNoting && (
+                    <React.Fragment>
+                      <button onClick={()=>callContact(c)} className="icon-btn" style={{width:34, height:34}} title="Llamar">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--sage-deep)" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.34 1.79.66 2.65a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.43-1.23a2 2 0 0 1 2.11-.45c.86.32 1.75.54 2.65.66A2 2 0 0 1 22 16.92z"/>
+                        </svg>
+                      </button>
+                      {c.phone && (
+                        <button onClick={()=>messageContact(c)} className="icon-btn" style={{width:34, height:34}} title="Mensaje">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--terracotta-deep)" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                          </svg>
+                        </button>
+                      )}
+                      <button onClick={()=>openNoteFor(c.id)} className="icon-btn" style={{width:34, height:34}} title="Registrar">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--terracotta-deep)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                      </button>
+                    </React.Fragment>
+                  )}
+                  {isCalling && (
+                    <button onClick={()=>openNoteFor(c.id)} className="chip"
+                      style={{background:"var(--terracotta-deep)", color:"#F6F3E9", border:"none", flexShrink:0}}>
+                      Terminar llamada
+                    </button>
+                  )}
+                </div>
+                {isNoting && (
+                  <div style={{marginTop:8}}>
+                    <textarea autoFocus className="input" rows={2} style={{resize:"none", fontFamily:"'Karla',sans-serif"}}
+                      placeholder="¿De qué hablaron? (opcional)"
+                      value={noteDraft} onChange={e=>setNoteDraft(e.target.value)} />
+                    <button onClick={saveNote} className="btn-primary" style={{width:"100%", padding:"8px 0", marginTop:6, fontSize:".82rem"}}>
+                      Guardar
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          {pending.length===0 && (
+            <p style={{fontSize:".85rem", color:"var(--ink-faint)", textAlign:"center", padding:"12px 0"}}>
+              Ya hablaste con todos hoy.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BackupSheet({contacts, onClose, onImport, onCopied}){
+  const [tab, setTab] = useState("export");
+  const [importText, setImportText] = useState("");
+  const [importError, setImportError] = useState("");
+  const exportText = useMemo(()=>JSON.stringify(contacts, null, 2), [contacts]);
+
+  function copy(){
+    try{
+      navigator.clipboard.writeText(exportText);
+      onCopied();
+    }catch(e){ /* el portapapeles puede no estar disponible: el usuario puede seleccionar y copiar manualmente */ }
+  }
+
+  function doImport(){
+    try{
+      const parsed = JSON.parse(importText);
+      if(!Array.isArray(parsed) || parsed.some(c=>!c.name)) throw new Error("shape");
+      onImport(parsed);
+      setImportText(""); setImportError("");
+    }catch(e){
+      setImportError("Ese texto no es un respaldo válido de KeepBonds. Revisa que sea el JSON completo copiado antes.");
+    }
+  }
+
+  return (
+    <div className="sheet-backdrop" style={{position:"absolute", inset:0, background:"rgba(54,47,36,.45)", display:"flex", alignItems:"flex-end", zIndex:50}} onClick={onClose}>
+      <div className="card sheet-pop" onClick={e=>e.stopPropagation()}
+        style={{width:"100%", borderBottomLeftRadius:0, borderBottomRightRadius:0, padding:"16px 18px 22px", maxHeight:"84%", display:"flex", flexDirection:"column"}}>
+        <div style={{width:36, height:4, background:"var(--line)", borderRadius:999, margin:"0 auto 12px"}} />
+        <p style={{fontWeight:700, margin:"0 0 10px", fontSize:".95rem"}}>Respaldo local</p>
+        <div style={{display:"flex", gap:8, marginBottom:12}}>
+          <button className="chip" data-active={tab==="export"} onClick={()=>setTab("export")} style={{flex:1, textAlign:"center"}}>Exportar</button>
+          <button className="chip" data-active={tab==="import"} onClick={()=>setTab("import")} style={{flex:1, textAlign:"center"}}>Importar</button>
+        </div>
+
+        <div className="screen-scroll">
+          {tab==="export" ? (
+            <div>
+              <p style={{fontSize:".78rem", color:"var(--ink-soft)", margin:"0 0 10px"}}>
+                Copia este texto y guárdalo (nota, correo a ti mismo) para poder restaurar tus contactos en otro dispositivo.
+              </p>
+              <textarea readOnly className="input" rows={8} style={{fontFamily:"monospace", fontSize:".72rem", resize:"none"}}
+                value={exportText} onFocus={e=>e.target.select()} />
+              <button onClick={copy} className="btn-primary" style={{width:"100%", padding:"12px 0", marginTop:10, fontSize:".88rem"}}>
+                Copiar al portapapeles
+              </button>
+            </div>
+          ) : (
+            <div>
+              <p style={{fontSize:".78rem", color:"var(--ink-soft)", margin:"0 0 10px"}}>
+                Pega aquí un respaldo exportado antes. Esto reemplazará tus contactos actuales.
+              </p>
+              <textarea className="input" rows={8} style={{fontFamily:"monospace", fontSize:".72rem", resize:"none"}}
+                placeholder="Pega aquí el JSON del respaldo..." value={importText}
+                onChange={e=>{setImportText(e.target.value); setImportError("");}} />
+              {importError && <p style={{color:"var(--terracotta-deep)", fontSize:".76rem", fontWeight:600, margin:"8px 0 0"}}>{importError}</p>}
+              <button onClick={doImport} className="btn-primary" style={{width:"100%", padding:"12px 0", marginTop:10, fontSize:".88rem"}}>
+                Importar y reemplazar
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TabBar({active, onChange, onOpenLog}){
+  const callIcon = (c) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.34 1.79.66 2.65a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.43-1.23a2 2 0 0 1 2.11-.45c.86.32 1.75.54 2.65.66A2 2 0 0 1 22 16.92z"/>
+    </svg>
+  );
+  const tabs = [
+    { key:"home", label:"Inicio", onClick:()=>onChange("home"), active: active==="home",
+      icon:(c)=>(
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+      )},
+    { key:"log", label:"Registrar", onClick:onOpenLog, active:false, accent:true, icon: callIcon },
+    { key:"add", label:"Añadir", onClick:()=>onChange("add"), active: active==="add",
+      icon:(c)=>(
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+      )},
+  ];
+  return (
+    <div style={{display:"flex", alignItems:"stretch", borderTop:"1px solid var(--line)", background:"var(--surface)", padding:"10px 10px calc(10px + env(safe-area-inset-bottom,0px))"}}>
+      {tabs.map(t=>{
+        const color = t.accent ? "var(--terracotta-deep)" : (t.active ? "var(--sage-deep)" : "var(--ink-faint)");
+        const bg = t.accent ? "var(--terracotta-soft)" : (t.active ? "var(--sage-soft)" : "transparent");
+        return (
+          <button key={t.key} onClick={t.onClick} style={{flex:1, display:"flex", justifyContent:"center", padding:"2px 0"}}>
+            <div style={{display:"flex", flexDirection:"column", alignItems:"center", gap:3, padding:"6px 14px",
+                  borderRadius:"1.1rem", background:bg, transition:"background .15s ease"}}>
+              {t.icon(color)}
+              <span style={{fontSize:".68rem", fontWeight:700, color}}>{t.label}</span>
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+const INITIAL_CONTACTS = [
+  { id:1, name:"Camila Rojas",      role:"Familia",   priority:"Alta",  birthday:"1998-09-09",  remind:5,  notif:true,
+    notes:"Le encanta el senderismo y el café de especialidad. El año pasado le regalé una prensa francesa y le fascinó. Está aprendiendo a tejer.",
+    history:[historyEntry(2, "Habló de su viaje a Pucón, llegó feliz."), historyEntry(19), historyEntry(40)],
+    birthdayNote:"Este año lo celebra el sábado, no el día exacto. Juntarse a almorzar." },
+  { id:2, name:"Tomás Herrera",     role:"Amigos",    priority:"Alta",  birthday:null, remind:3,  notif:true,
+    notes:"Fanático de la fórmula 1 y la cerveza artesanal. Anda buscando departamento nuevo, preguntarle cómo va esa búsqueda.",
+    history:[historyEntry(9), historyEntry(30, "Encontró depto, se muda en octubre.")] },
+  { id:3, name:"Rosa Elena Díaz",   role:"Familia",   priority:"Alta",  birthday:"1952-09-25", remind:7,  notif:true,
+    notes:"Le gustan las plantas de interior y las novelas históricas. Su rodilla ha estado molestándola, preguntar cómo sigue.",
+    history:[historyEntry(14, "La rodilla sigue igual, va al doctor el jueves."), historyEntry(35), historyEntry(60)],
+    birthdayNote:"" },
+  { id:4, name:"Valentina Muñoz",   role:"Amigos",    priority:"Media", birthday:null, remind:5,  notif:false,
+    notes:"", history:[historyEntry(6)] },
+  { id:5, name:"Ignacio Soto",      role:"Conocidos", priority:"Baja",  birthday:"1996-09-16", remind:3,  notif:true,
+    notes:"Compañero de universidad, ahora trabaja en diseño gráfico. Le gustan los vinilos de jazz.",
+    history:[historyEntry(28), historyEntry(70)],
+    birthdayNote:"" },
+  { id:6, name:"Javiera Contreras", role:"Amigos",    priority:"Media", birthday:null, remind:14, notif:true,
+    notes:"", history:[historyEntry(20), historyEntry(45)] },
+  { id:7, name:"Patricio Vera",     role:"Conocidos", priority:"Baja",  birthday:null, remind:7,  notif:false,
+    notes:"Vecino, tiene dos gatos. Le interesa la fotografía análoga.",
+    history:[historyEntry(3)] },
+];
+
+const STORAGE_KEY = "keepbonds_contacts_v2";
+
+function normalizeContact(c){
+  let history = normalizeHistory(c.history);
+  // Migración: versiones anteriores guardaban "lastContact" como número fijo
+  // que nunca avanzaba con el paso del tiempo. Si no hay historial pero sí
+  // ese número viejo, lo convertimos en una fecha real para no perder el dato.
+  if(history.length === 0 && typeof c.lastContact === "number"){
+    history = [{ date: isoDaysAgo(c.lastContact), note:"" }];
+  }
+  return {
+    id: c.id,
+    name: c.name,
+    phone: c.phone || "",
+    photo: c.photo || "",
+    role: c.role || "Conocidos",
+    priority: c.priority || "Media",
+    birthday: c.birthday || null,
+    remind: c.remind || 5,
+    notif: c.notif !== undefined ? c.notif : true,
+    notes: c.notes || "",
+    birthdayNote: c.birthdayNote || "",
+    history,
+    freq: c.freq || "Quincenal",
+    importantDates: Array.isArray(c.importantDates)
+      ? c.importantDates.filter(d=>d && d.date).map(d=>({ id: d.id || makeId(), label: d.label || "Fecha importante", date: d.date }))
+      : [],
+    snoozedUntil: c.snoozedUntil || null,
+  };
+}
+
+function loadContacts(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(Array.isArray(parsed)) return parsed.map(normalizeContact);
+    }
+  }catch(e){ /* localStorage no disponible o dato corrupto: seguimos con la app vacía */ }
+  return [];
+}
+
+const SETTINGS_KEY = "keepbonds_settings_v1";
+const DEFAULT_SETTINGS = { userName:"", theme:"light", compact:false, defaultRemind:5, defaultFreq:"Quincenal", onboarded:false };
+
+function loadSettings(){
+  try{
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if(raw) return {...DEFAULT_SETTINGS, ...JSON.parse(raw)};
+  }catch(e){ /* localStorage no disponible: usamos valores por defecto */ }
+  return DEFAULT_SETTINGS;
+}
+
+function OnboardingScreen({onFinish}){
+  const [step, setStep] = useState(0);
+  const [name, setName] = useState("");
+  const [notifGranted, setNotifGranted] = useState(false);
+  const [contactsGranted, setContactsGranted] = useState(false);
+  const [permError, setPermError] = useState("");
+
+  function finish(){
+    onFinish(name.trim());
+  }
+
+  async function askNotifications(){
+    setPermError("");
+    try{
+      const p = await LocalNotifications.requestPermissions();
+      setNotifGranted(p.display === "granted");
+    }catch(e){
+      setPermError("No se pudo activar las notificaciones. Puedes intentarlo después en Ajustes.");
+    }
+  }
+
+  async function askContacts(){
+    setPermError("");
+    try{
+      // Igual que en Añadir persona: llamamos a getContacts directamente para que
+      // el propio plugin gestione el permiso en un solo paso.
+      await Contacts.getContacts({ projection:{ name:true } });
+      setContactsGranted(true);
+    }catch(e){
+      setPermError("No se pudo activar el acceso a contactos. Puedes intentarlo después en Ajustes.");
+    }
+  }
+
+  return (
+    <div className="screen-enter" style={{height:"100%", display:"flex", flexDirection:"column", justifyContent:"center", padding:"32px 28px"}}>
+      {step===0 && (
+        <div style={{textAlign:"center"}}>
+          <div style={{margin:"0 auto 22px", width:88, height:88, borderRadius:"28px",
+                background:"linear-gradient(155deg, var(--sage), var(--terracotta))",
+                display:"flex", alignItems:"center", justifyContent:"center"}}>
+            <svg width="46" height="46" viewBox="0 0 1024 1024" fill="none">
+              <circle cx="430" cy="512" r="190" stroke="#FBF6EA" strokeWidth="46"/>
+              <circle cx="610" cy="512" r="190" stroke="#FBF6EA" strokeWidth="46"/>
+              <circle cx="520" cy="512" r="26" fill="#FBF6EA"/>
+            </svg>
+          </div>
+          <h1 className="font-display" style={{fontSize:"1.6rem", fontWeight:600, margin:"0 0 12px"}}>Bienvenido a KeepBonds</h1>
+          <p style={{fontSize:".92rem", color:"var(--ink-soft)", lineHeight:1.6, margin:"0 0 6px"}}>
+            Te ayuda a mantener cerca a las personas que quieres, y a estar al tanto de sus momentos importantes.
+          </p>
+          <p style={{fontSize:".92rem", color:"var(--ink-soft)", lineHeight:1.6, margin:0}}>
+            Avisa los cumpleaños con anticipación y te recuerda cuando llevas mucho tiempo sin hablar con alguien importante para ti.
+          </p>
+          <button onClick={()=>setStep(1)} className="btn-primary" style={{width:"100%", padding:"14px 0", marginTop:32, fontSize:".95rem"}}>
+            Continuar
+          </button>
+        </div>
+      )}
+
+      {step===1 && (
+        <div style={{textAlign:"center"}}>
+          <h1 className="font-display" style={{fontSize:"1.5rem", fontWeight:600, margin:"0 0 10px"}}>¿Cómo te llamas?</h1>
+          <p style={{fontSize:".88rem", color:"var(--ink-soft)", margin:"0 0 24px"}}>
+            Así te va a saludar la app cada vez que la abras.
+          </p>
+          <input
+            autoFocus
+            className="input"
+            style={{textAlign:"center", fontSize:"1.05rem"}}
+            placeholder="Tu nombre"
+            value={name}
+            onChange={e=>setName(e.target.value)}
+            onKeyDown={e=>{ if(e.key==="Enter") setStep(2); }}
+          />
+          <button onClick={()=>setStep(2)} className="btn-primary" style={{width:"100%", padding:"14px 0", marginTop:24, fontSize:".95rem"}}>
+            Continuar
+          </button>
+        </div>
+      )}
+
+      {step===2 && (
+        <div>
+          <h1 className="font-display" style={{fontSize:"1.4rem", fontWeight:600, margin:"0 0 8px", textAlign:"center"}}>Antes de empezar</h1>
+          <p style={{fontSize:".85rem", color:"var(--ink-soft)", margin:"0 0 22px", textAlign:"center", lineHeight:1.5}}>
+            Actívalos para aprovechar todas las funciones. Puedes cambiarlos después en Ajustes.
+          </p>
+
+          <div className="card" style={{padding:14, marginBottom:12, textAlign:"left"}}>
+            <div style={{display:"flex", alignItems:"center", gap:12}}>
+              <div style={{width:38, height:38, borderRadius:"999px", background:"var(--sage-soft)", flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center"}}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--sage-deep)" strokeWidth="1.8" strokeLinecap="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              </div>
+              <div style={{flex:1, minWidth:0}}>
+                <p style={{margin:0, fontWeight:700, fontSize:".88rem"}}>Notificaciones</p>
+                <p style={{margin:"2px 0 0", fontSize:".78rem", color:"var(--ink-soft)"}}>Para avisarte cumpleaños y recordatorios de contacto.</p>
+              </div>
+              <button onClick={askNotifications} className="segbtn" data-active={notifGranted} style={{flexShrink:0, padding:".5rem .8rem"}}>
+                {notifGranted ? "Activado" : "Activar"}
+              </button>
+            </div>
+          </div>
+
+          <div className="card" style={{padding:14, marginBottom:24, textAlign:"left"}}>
+            <div style={{display:"flex", alignItems:"center", gap:12}}>
+              <div style={{width:38, height:38, borderRadius:"999px", background:"var(--terracotta-soft)", flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center"}}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--terracotta-deep)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div style={{flex:1, minWidth:0}}>
+                <p style={{margin:0, fontWeight:700, fontSize:".88rem"}}>Contactos <span style={{fontWeight:400, color:"var(--ink-faint)"}}>(opcional)</span></p>
+                <p style={{margin:"2px 0 0", fontSize:".78rem", color:"var(--ink-soft)"}}>Solo si quieres agregar personas directamente desde tu agenda.</p>
+              </div>
+              <button onClick={askContacts} className="segbtn" data-active={contactsGranted} style={{flexShrink:0, padding:".5rem .8rem"}}>
+                {contactsGranted ? "Permitido" : "Permitir"}
+              </button>
+            </div>
+          </div>
+
+          {permError && (
+            <p style={{margin:"0 0 16px", padding:"10px 12px", background:"var(--terracotta-soft)", color:"var(--terracotta-deep)",
+                  borderRadius:".8rem", fontSize:".8rem", fontWeight:600, textAlign:"center"}}>
+              {permError}
+            </p>
+          )}
+
+          <button onClick={finish} className="btn-primary" style={{width:"100%", padding:"14px 0", fontSize:".95rem"}}>
+            Empezar a usar KeepBonds
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function App(){
+  const [contacts, setContacts] = useState(loadContacts);
+  const [screen, setScreen] = useState("home");
+  const [selectedId, setSelectedId] = useState(null);
+  const [filter, setFilter] = useState("Todos");
+  const [toast, setToast] = useState("");
+  const [backupOpen, setBackupOpen] = useState(false);
+  const [logOpen, setLogOpen] = useState(false);
+  const [settings, setSettings] = useState(loadSettings);
+
+  useEffect(()=>{
+    try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }catch(e){ /* no-op: modo offline sin persistencia disponible */ }
+  },[settings]);
+
+  useEffect(()=>{
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(contacts)); }catch(e){ /* no-op: modo offline sin persistencia disponible */ }
+    scheduleNotifications(contacts);
+  },[contacts]);
+
+  useEffect(()=>{
+    if(!toast) return;
+    const hasAction = typeof toast === "object" && toast.actionLabel;
+    const t = setTimeout(()=>setToast(""), hasAction ? 4000 : 2200);
+    return ()=>clearTimeout(t);
+  },[toast]);
+
+  function updateSetting(key, value){
+    setSettings(s=>({...s, [key]:value}));
+  }
+
+  function restoreSample(){
+    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+    setContacts(INITIAL_CONTACTS.map(normalizeContact));
+    setScreen("home");
+    setToast("Datos de ejemplo restaurados");
+  }
+
+  function deleteAllData(){
+    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+    setContacts([]);
+    setScreen("home");
+    setToast("Todos los contactos fueron borrados");
+  }
+
+  const selected = contacts.find(c=>c.id===selectedId) || null;
+
+  function markToday(id){
+    const c = contacts.find(c=>c.id===id);
+    const today = todayISO();
+    setContacts(cs=>cs.map(c=> c.id===id
+      ? {...c, history:[{date:today, note:""}, ...((c.history||[]).filter(h=>h.date!==today))].slice(0,12)}
+      : c));
+    if(c) setToast(`Registrado: hablaste con ${c.name.split(" ")[0]} hoy`);
+  }
+
+  function logCall(id, note){
+    const c = contacts.find(c=>c.id===id);
+    const today = todayISO();
+    const trimmedNote = (note || "").trim();
+    setContacts(cs=>cs.map(c=>{
+      if(c.id!==id) return c;
+      return {...c, history:[{date:today, note:trimmedNote}, ...((c.history||[]).filter(h=>h.date!==today))].slice(0,12)};
+    }));
+    if(c) setToast(`Llamada registrada con ${c.name.split(" ")[0]}`);
+  }
+
+  function addContact(data){
+    const nextId = Math.max(0, ...contacts.map(c=>c.id), 0) + 1;
+    setContacts(cs=>[{ id:nextId, name:data.name, phone:data.phone || "", photo:data.photo || "", role:data.role, priority:data.priority,
+                        birthday:data.birthday || null, remind:settings.defaultRemind, notif:true,
+                        notes:data.notes || "", history:[{date:todayISO(), note:""}], freq:data.freq || settings.defaultFreq }, ...cs]);
+    setToast(`${data.name.split(" ")[0]} fue añadido a tu círculo`);
+    setScreen("home");
+  }
+
+  function setNotes(id, notes){
+    setContacts(cs=>cs.map(c=>c.id===id ? {...c, notes} : c));
+  }
+
+  function setBirthdayNote(id, birthdayNote){
+    const c = contacts.find(c=>c.id===id);
+    setContacts(cs=>cs.map(c=>c.id===id ? {...c, birthdayNote} : c));
+    if(c) setToast(birthdayNote ? `Nota guardada para ${c.name.split(" ")[0]}` : `Nota eliminada`);
+  }
+
+  function updateContact(id, data){
+    setContacts(cs=>cs.map(c=>c.id===id ? {...c, ...data} : c));
+    setToast("Cambios guardados");
+    setScreen("detail");
+  }
+
+  function deleteContact(id){
+    const idx = contacts.findIndex(c=>c.id===id);
+    if(idx===-1) return;
+    const c = contacts[idx];
+    setContacts(cs=>cs.filter(c=>c.id!==id));
+    setScreen("home");
+    setToast({
+      text: `${c.name.split(" ")[0]} fue eliminado de tu círculo`,
+      actionLabel: "Deshacer",
+      onAction: () => {
+        setContacts(cs=>{
+          const copy = [...cs];
+          copy.splice(Math.min(idx, copy.length), 0, c);
+          return copy;
+        });
+        setToast("Contacto restaurado");
+      },
+    });
+  }
+
+  function snoozeContact(id, days){
+    const c = contacts.find(c=>c.id===id);
+    const until = isoDaysFromNow(days);
+    setContacts(cs=>cs.map(c=>c.id===id ? {...c, snoozedUntil:until} : c));
+    if(c) setToast(`${c.name.split(" ")[0]} pospuesto hasta ${formatDateEs(until)}`);
+  }
+
+  function cancelSnooze(id){
+    setContacts(cs=>cs.map(c=>c.id===id ? {...c, snoozedUntil:null} : c));
+    setToast("Se canceló posponer");
+  }
+
+  function addImportantDate(id, data){
+    setContacts(cs=>cs.map(c=>c.id===id ? {...c, importantDates:[...(c.importantDates||[]), data]} : c));
+    setToast(`"${data.label}" añadida`);
+  }
+
+  function deleteImportantDate(id, dateId){
+    setContacts(cs=>cs.map(c=>c.id===id ? {...c, importantDates:(c.importantDates||[]).filter(d=>d.id!==dateId)} : c));
+    setToast("Fecha eliminada");
+  }
+
+  if(!settings.onboarded){
+    return (
+      <div className={`app-root ${settings.theme==="dark" ? "theme-dark" : ""}`}>
+        <OnboardingScreen onFinish={(name)=>{
+          setSettings(s=>({...s, userName: name || "Tú", onboarded:true}));
+        }} />
+      </div>
+    );
+  }
+
+  return (
+    <div className={`app-root ${settings.theme==="dark" ? "theme-dark" : ""}`}>
+      <div style={{flex:1, position:"relative", minHeight:0}}>
+        {screen==="home" && (
+          <HomeScreen
+            contacts={contacts}
+            filter={filter}
+            setFilter={setFilter}
+            onOpenContact={(id)=>{ setSelectedId(id); setScreen("detail"); }}
+            onOpenSettings={()=>setScreen("settings")}
+            onSetBirthdayNote={setBirthdayNote}
+            userName={settings.userName}
+            compact={settings.compact}
+          />
+        )}
+        {screen==="detail" && selected && (
+          <DetailScreen
+            contact={selected}
+            onBack={()=>setScreen("home")}
+            onEdit={()=>setScreen("edit")}
+            onMarkedToday={()=>markToday(selected.id)}
+            onSetRemind={(d)=>setContacts(cs=>cs.map(c=>c.id===selected.id?{...c,remind:d}:c))}
+            onToggleNotif={()=>setContacts(cs=>cs.map(c=>c.id===selected.id?{...c,notif:!c.notif}:c))}
+            onSetNotes={(notes)=>setNotes(selected.id, notes)}
+            onSetBirthdayNote={(note)=>setBirthdayNote(selected.id, note)}
+            onSnooze={(days)=>snoozeContact(selected.id, days)}
+            onCancelSnooze={()=>cancelSnooze(selected.id)}
+            onAddImportantDate={(data)=>addImportantDate(selected.id, data)}
+            onDeleteImportantDate={(dateId)=>deleteImportantDate(selected.id, dateId)}
+          />
+        )}
+        {screen==="edit" && selected && (
+          <EditContactScreen
+            contact={selected}
+            onSave={(data)=>updateContact(selected.id, data)}
+            onCancel={()=>setScreen("detail")}
+            onDelete={()=>deleteContact(selected.id)}
+          />
+        )}
+        {screen==="add" && (
+          <AddScreen onSave={addContact} onCancel={()=>setScreen("home")} defaultFreq={settings.defaultFreq} />
+        )}
+        {screen==="settings" && (
+          <SettingsScreen
+            settings={settings}
+            onUpdate={updateSetting}
+            onBack={()=>setScreen("home")}
+            onOpenBackup={()=>setBackupOpen(true)}
+            onRestoreSample={restoreSample}
+            onDeleteAll={deleteAllData}
+          />
+        )}
+        {toast && (
+          <div className="toast" style={typeof toast === "object" ? {display:"flex", alignItems:"center", gap:10} : undefined}>
+            <span>{typeof toast === "string" ? toast : toast.text}</span>
+            {typeof toast === "object" && toast.actionLabel && (
+              <button onClick={()=>{ toast.onAction(); setToast(""); }}
+                style={{fontWeight:800, color:"var(--cream)", textDecoration:"underline", flexShrink:0}}>
+                {toast.actionLabel}
+              </button>
+            )}
+          </div>
+        )}
+        {backupOpen && (
+          <BackupSheet
+            contacts={contacts}
+            onClose={()=>setBackupOpen(false)}
+            onCopied={()=>setToast("Respaldo copiado al portapapeles")}
+            onImport={(parsed)=>{ setContacts(parsed.map(normalizeContact)); setBackupOpen(false); setToast("Respaldo importado"); }}
+          />
+        )}
+        {logOpen && (
+          <QuickLogSheet
+            contacts={contacts}
+            onClose={()=>setLogOpen(false)}
+            onLogCall={logCall}
+            onToast={setToast}
+          />
+        )}
+      </div>
+      {(screen==="home" || screen==="add") && (
+        <TabBar active={screen} onChange={(k)=>setScreen(k)} onOpenLog={()=>setLogOpen(true)} />
+      )}
+    </div>
+  );
+}
+
+function StatusBar(){
+  return (
+    <div style={{display:"flex", alignItems:"center", justifyContent:"space-between", padding:"10px 22px 2px", fontSize:".78rem", fontWeight:700, color:"var(--ink)"}}>
+      <span className="tabular">9:41</span>
+      <div style={{display:"flex", alignItems:"center", gap:5}}>
+        <svg width="15" height="11" viewBox="0 0 16 12" fill="none"><path d="M1 9.5 L1 11 L3 11 L3 7.5 Z M5 6.5 L5 11 L7 11 L7 4.5 Z M9 4 L9 11 L11 11 L11 1.5 Z" fill="var(--ink)"/></svg>
+        <svg width="20" height="11" viewBox="0 0 24 12" fill="none"><rect x="1" y="1.5" width="19" height="9" rx="2.5" stroke="var(--ink)" strokeWidth="1.2"/><rect x="2.5" y="3" width="14" height="6" rx="1.2" fill="var(--ink)"/><rect x="21" y="4" width="2" height="4" rx="1" fill="var(--ink)"/></svg>
+      </div>
+    </div>
+  );
+}
+
+function MockupShell(){
+  return (
+    <div style={{minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:18, padding:"48px 16px"}}>
+      <div style={{textAlign:"center"}}>
+        <p className="font-display" style={{margin:0, fontSize:"1.05rem", fontWeight:600, color:"#F4EEDD"}}>KeepBonds</p>
+        <p style={{margin:"2px 0 0", fontSize:".75rem", color:"#C7BDA4"}}>Prototipo interactivo &middot; toca una persona o usa la barra inferior</p>
+      </div>
+      <div className="phone-shell">
+        <div className="phone-btn" style={{left:-2, top:120, width:3, height:60, borderRadius:"0 3px 3px 0"}} />
+        <div className="phone-btn" style={{left:-2, top:190, width:3, height:60, borderRadius:"0 3px 3px 0"}} />
+        <div className="phone-btn" style={{right:-2, top:150, width:3, height:90, borderRadius:"3px 0 0 3px"}} />
+        <div className="phone-screen">
+          <StatusBar />
+          <App />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<MockupShell/>);
+
+</script>

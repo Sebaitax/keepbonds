@@ -1,0 +1,210 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>KeepBonds — Privacidad</title>
+<meta name="description" content="Política de privacidad de KeepBonds">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<style>
+  :root{
+    --cream:#F6EFE2;
+    --surface:#FFFCF6;
+    --surface-2:#EFE6D2;
+    --sage:#74845F;
+    --sage-deep:#4B5A3C;
+    --sage-soft:#DEE5CE;
+    --terracotta:#C97B54;
+    --terracotta-deep:#A64F35;
+    --terracotta-soft:#F1DECB;
+    --ink:#362F24;
+    --ink-soft:#7C7361;
+    --ink-faint:#B0A692;
+    --line:#E7DCC5;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --cream:#221E19; --surface:#2B2620; --surface-2:#3A3428;
+      --ink:#F1EADB; --ink-soft:#C7BCA3; --ink-faint:#8B8168; --line:#463F31;
+    }
+  }
+  :root[data-theme="dark"]{
+    --cream:#221E19; --surface:#2B2620; --surface-2:#3A3428;
+    --ink:#F1EADB; --ink-soft:#C7BCA3; --ink-faint:#8B8168; --line:#463F31;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--cream); color:var(--ink);
+    font-family:'Karla', ui-sans-serif, system-ui, sans-serif;
+    line-height:1.65;
+  }
+  .wrap{ max-width:700px; margin:0 auto; padding:56px 24px 96px; }
+  .font-display{ font-family:'Fraunces', ui-serif, Georgia, serif; text-wrap:balance; }
+
+  header{ margin-bottom:40px; }
+  .badge{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--surface); border:1px solid var(--line); border-radius:999px;
+    padding:.4rem .9rem .4rem .5rem; font-size:.8rem; font-weight:700; color:var(--sage-deep);
+    margin-bottom:22px;
+  }
+  .badge svg{ flex-shrink:0; }
+  h1{ font-size:2.1rem; font-weight:600; margin:0 0 10px; }
+  .updated{ font-size:.85rem; color:var(--ink-faint); margin:0; }
+
+  section{ margin-top:40px; }
+  h2{
+    font-family:'Fraunces', serif; font-size:1.25rem; font-weight:600; margin:0 0 14px;
+    display:flex; align-items:center; gap:10px;
+  }
+  h2 .num{
+    font-size:.72rem; font-weight:700; color:var(--terracotta-deep); background:var(--terracotta-soft);
+    border-radius:999px; width:22px; height:22px; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  p{ margin:0 0 14px; color:var(--ink); font-size:.96rem; }
+  p.soft{ color:var(--ink-soft); }
+  ul{ margin:0 0 14px; padding-left:0; list-style:none; }
+  li{ position:relative; padding:0 0 10px 22px; font-size:.96rem; }
+  li::before{
+    content:""; position:absolute; left:0; top:9px; width:6px; height:6px;
+    border-radius:999px; background:var(--sage);
+  }
+  strong{ font-weight:700; }
+
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-radius:1.1rem;
+    padding:18px 20px; margin:18px 0;
+  }
+  .permtable{ display:flex; flex-direction:column; gap:14px; }
+  .perm{ display:flex; gap:14px; align-items:flex-start; }
+  .perm .icon{
+    width:36px; height:36px; border-radius:999px; background:var(--sage-soft); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .perm .icon.terra{ background:var(--terracotta-soft); }
+  .perm-name{ font-weight:700; font-size:.9rem; margin:0 0 2px; }
+  .perm-desc{ font-size:.84rem; color:var(--ink-soft); margin:0; }
+
+  .callout{
+    background:var(--sage-soft); border-radius:1.1rem; padding:18px 20px; margin:18px 0;
+    color:var(--sage-deep); font-size:.92rem; font-weight:600;
+  }
+
+  footer{
+    margin-top:56px; padding-top:24px; border-top:1px solid var(--line);
+    font-size:.82rem; color:var(--ink-faint);
+  }
+  footer a{ color:var(--sage-deep); font-weight:700; text-decoration:none; }
+  footer a:hover{ text-decoration:underline; }
+
+  @media (max-width:520px){
+    .wrap{ padding:40px 18px 72px; }
+    h1{ font-size:1.7rem; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="badge">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="430" cy="512" r="0"/><circle cx="9" cy="12" r="6.5" stroke="#4B5A3C" stroke-width="1.8"/><circle cx="15" cy="12" r="6.5" stroke="#A64F35" stroke-width="1.8"/></svg>
+      KeepBonds
+    </span>
+    <h1 class="font-display">Política de privacidad</h1>
+    <p class="updated">Última actualización: 4 de septiembre de 2026</p>
+  </header>
+
+  <p>KeepBonds es una aplicación que te ayuda a mantener el contacto con las personas importantes en tu vida: avisa cumpleaños con anticipación y te recuerda cuando llevas tiempo sin hablar con alguien. Esta página explica, en lenguaje simple, qué información maneja la app y qué hace (y qué no hace) con ella.</p>
+
+  <div class="callout">KeepBonds funciona completamente sin conexión. No tiene servidor propio, no envía tus datos a ningún lado, y no incluye publicidad ni herramientas de seguimiento.</div>
+
+  <section>
+    <h2><span class="num">1</span>Qué información guarda la app</h2>
+    <p class="soft">Toda la información que ves dentro de KeepBonds la ingresas tú mismo, y queda guardada únicamente en tu propio dispositivo (usando el almacenamiento local del teléfono). Esto incluye:</p>
+    <ul>
+      <li><strong>Datos de las personas que agregas:</strong> nombre, teléfono, fecha de cumpleaños, notas, fechas importantes (aniversarios, etc.) y una foto de perfil, si eliges añadir una.</li>
+      <li><strong>Tu nombre</strong>, que usamos solo para saludarte en la pantalla de inicio.</li>
+      <li><strong>Historial de contacto:</strong> las fechas en que marcas que hablaste con alguien, y notas opcionales sobre esas conversaciones.</li>
+      <li><strong>Preferencias de la app:</strong> tema claro/oscuro, frecuencia de recordatorios, idioma, y ajustes similares.</li>
+    </ul>
+    <p>Nada de esto sale de tu teléfono. No existe una cuenta, no hay inicio de sesión, y no se sincroniza con ningún servidor porque KeepBonds no tiene uno.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">2</span>Permisos que pide la app</h2>
+    <p class="soft">Android exige que las apps declaren para qué piden cada permiso. Así los usamos nosotros:</p>
+    <div class="card permtable">
+      <div class="perm">
+        <div class="icon terra">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#A64F35" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <p class="perm-name">Contactos (opcional)</p>
+          <p class="perm-desc">Solo si tú lo activas, para elegir a alguien de tu agenda y copiar su nombre y teléfono al crear un contacto en la app. Nunca leemos ni modificamos tu agenda en segundo plano, y no la subimos a ningún lado. El sistema operativo exige declarar tanto el permiso de lectura como el de escritura para que esta función funcione correctamente, aunque la app únicamente lee.</p>
+        </div>
+      </div>
+      <div class="perm">
+        <div class="icon">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4B5A3C" stroke-width="1.8" stroke-linecap="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        </div>
+        <div>
+          <p class="perm-name">Notificaciones</p>
+          <p class="perm-desc">Para avisarte de cumpleaños próximos y recordarte cuando llevas tiempo sin hablar con alguien. Estas notificaciones se generan y se programan en tu propio teléfono; no dependen de ningún servidor externo.</p>
+        </div>
+      </div>
+      <div class="perm">
+        <div class="icon terra">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#A64F35" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <div>
+          <p class="perm-name">Cámara y galería (opcional)</p>
+          <p class="perm-desc">Solo si eliges añadir una foto de perfil a un contacto. La foto se guarda localmente junto al resto de sus datos; nunca se envía a un servidor.</p>
+        </div>
+      </div>
+      <div class="perm">
+        <div class="icon">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4B5A3C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+        </div>
+        <div>
+          <p class="perm-name">Vibración</p>
+          <p class="perm-desc">Para dar una pequeña confirmación táctil al guardar o eliminar algo. No maneja datos personales.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">3</span>Qué no hacemos</h2>
+    <ul>
+      <li>No compartimos, vendemos ni alquilamos tu información a terceros, porque no la recibimos en primer lugar.</li>
+      <li>No usamos servicios de analítica, publicidad ni rastreo de comportamiento.</li>
+      <li>No creamos un perfil tuyo fuera de tu propio dispositivo.</li>
+      <li>No accedemos a tu lista de contactos completa: solo a la persona puntual que eliges importar, y solo en el momento en que lo haces.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">4</span>Si borras la app o tus datos</h2>
+    <p>Como toda la información vive únicamente en el almacenamiento local de tu dispositivo, desinstalar KeepBonds —o usar la opción "Borrar todos los datos" dentro de Ajustes— elimina permanentemente todo lo que hayas guardado. No conservamos copias en ningún otro lugar, porque no existen.</p>
+    <p class="soft">Si quieres respaldar tu información antes de desinstalar o cambiar de teléfono, la app incluye una opción de "Respaldo local" en Ajustes para exportar tus datos como texto y guardarlos donde tú prefieras.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">5</span>Menores de edad</h2>
+    <p>KeepBonds no está dirigida específicamente a niños y no recopilamos intencionalmente información de menores de edad, más allá de lo que un usuario de cualquier edad pueda ingresar voluntariamente sobre sus propios contactos (por ejemplo, el cumpleaños de un familiar menor).</p>
+  </section>
+
+  <section>
+    <h2><span class="num">6</span>Cambios a esta política</h2>
+    <p>Si esta política cambia en el futuro, actualizaremos la fecha al inicio de esta página. Te recomendamos revisarla ocasionalmente si usas la app de forma continua.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">7</span>Contacto</h2>
+    <p>Si tienes preguntas sobre esta política o sobre cómo funciona KeepBonds, puedes escribir a <strong>[correo de contacto pendiente]</strong>.</p>
+  </section>
+
+  <footer>
+    KeepBonds · Política de privacidad
+  </footer>
+</div>
+
+</body></html>

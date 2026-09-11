@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Signing credentials — never commit these
+android/keystore.properties
+android/keepbonds-release.keystore
+RELEASE_KEYSTORE_INFO.txt
+
+# Android build output / local machine config
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/capacitor-cordova-android-plugins/
+
+# Build artifacts (regenerate with node scripts/build.mjs + gradlew)
+*.apk
+*.aab
+
+# Test output
+test-screens/
+test-screens-stress/
+
+# Claude Code local session config
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
