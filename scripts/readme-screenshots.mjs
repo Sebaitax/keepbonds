@@ -65,6 +65,20 @@ await page.screenshot({ path: path.join(OUT, 'detail.png') });
 await page.locator('svg path[d="M15 18l-6-6 6-6"]').first().click();
 await page.waitForTimeout(200);
 
+// Settings screen (bilingual toggle)
+await page.locator('.icon-btn').first().click();
+await page.waitForTimeout(300);
+await page.screenshot({ path: path.join(OUT, 'settings.png') });
+await page.locator('svg path[d="M15 18l-6-6 6-6"]').first().click();
+await page.waitForTimeout(200);
+
+// Registrar (QuickLog) sheet
+await page.locator('button:has(svg path[d^="M22 16.92v3a2 2 0 0 1-2.18"])').first().click();
+await page.waitForTimeout(300);
+await page.screenshot({ path: path.join(OUT, 'quicklog.png') });
+await page.mouse.click(20, 20);
+await page.waitForTimeout(200);
+
 // Dark mode home
 await page.evaluate((s) => {
   s.theme = 'dark';

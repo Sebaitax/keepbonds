@@ -11,9 +11,11 @@ KeepBonds es una app para Android que avisa cumpleaños con anticipación, te re
 ## Capturas de pantalla
 
 <p align="center">
-  <img src="play-assets/screenshots/home-light.png" width="30%" alt="Pantalla de inicio">
-  <img src="play-assets/screenshots/detail.png" width="30%" alt="Detalle de contacto">
-  <img src="play-assets/screenshots/home-dark.png" width="30%" alt="Modo oscuro">
+  <img src="play-assets/screenshots/home-light.png" width="19%" alt="Pantalla de inicio">
+  <img src="play-assets/screenshots/detail.png" width="19%" alt="Detalle de contacto">
+  <img src="play-assets/screenshots/settings.png" width="19%" alt="Ajustes, con selector de idioma">
+  <img src="play-assets/screenshots/quicklog.png" width="19%" alt="Registrar llamadas pendientes">
+  <img src="play-assets/screenshots/home-dark.png" width="19%" alt="Modo oscuro">
 </p>
 
 ## Qué puedes hacer
