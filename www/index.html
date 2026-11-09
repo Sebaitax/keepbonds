@@ -4,9 +4,45 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <title>KeepBonds</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Karla:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap">
 <style>
+  /* Quicksand y Lexend (SIL Open Font License) van dentro de la app para que se vean igual sin internet. */
+  /* latin-ext */
+  @font-face {
+    font-family: 'Lexend';
+    font-style: normal;
+    font-weight: 400 800;
+    font-display: swap;
+    src: url(fonts/lexend-latin-ext.woff2) format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+  /* latin */
+  @font-face {
+    font-family: 'Lexend';
+    font-style: normal;
+    font-weight: 400 800;
+    font-display: swap;
+    src: url(fonts/lexend-latin.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  /* latin-ext */
+  @font-face {
+    font-family: 'Quicksand';
+    font-style: normal;
+    font-weight: 500 700;
+    font-display: swap;
+    src: url(fonts/quicksand-latin-ext.woff2) format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+  /* latin */
+  @font-face {
+    font-family: 'Quicksand';
+    font-style: normal;
+    font-weight: 500 700;
+    font-display: swap;
+    src: url(fonts/quicksand-latin.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
   :root{
     --cream:#F6EFE2;
     --surface:#FFFCF6;
@@ -22,6 +58,8 @@
     --ink-faint:#B0A692;
     --line:#E7DCC5;
     --line-soft:rgba(54,47,36,0.05);
+    --font-display:'Quicksand', ui-rounded, system-ui, sans-serif;
+    --font-body:'Lexend', ui-sans-serif, system-ui, sans-serif;
   }
   .app-root.theme-dark{
     --cream:#221E19;
@@ -45,10 +83,10 @@
   body{
     background:var(--cream);
     color:var(--ink);
-    font-family:'Karla', ui-sans-serif, system-ui, sans-serif;
+    font-family:var(--font-body);
   }
   #root{height:100%;}
-  .font-display{ font-family:'Fraunces', ui-serif, Georgia, serif; }
+  .font-display{ font-family:var(--font-display); }
   h1,h2,h3,.font-display{ text-wrap:balance; }
   .tabular{ font-variant-numeric: tabular-nums; }
 
@@ -60,7 +98,7 @@
     overflow:hidden;
   }
   .screen-scroll{
-    flex:1; overflow-y:auto; overflow-x:hidden;
+    flex:1; min-height:0; overflow-y:auto; overflow-x:hidden;
     scrollbar-width:none;
   }
   .screen-scroll::-webkit-scrollbar{ display:none; }
@@ -99,7 +137,7 @@
   }
 
   .chip{
-    font-family:'Karla',sans-serif; font-weight:600; font-size:.78rem;
+    font-family:var(--font-body); font-weight:600; font-size:.78rem;
     padding:.4rem .9rem; border-radius:999px; white-space:nowrap;
     border:1px solid var(--line); color:var(--ink-soft);
     transition: background .15s ease, color .15s ease, border-color .15s ease;
@@ -139,7 +177,7 @@
 
   .input{
     width:100%; border:1px solid var(--line); background:var(--surface);
-    border-radius:.9rem; padding:.7rem .85rem; font-family:'Karla',sans-serif;
+    border-radius:.9rem; padding:.7rem .85rem; font-family:var(--font-body);
     font-size:.92rem; color:var(--ink); outline:none;
   }
   .input:focus{ border-color:var(--sage); box-shadow:0 0 0 3px color-mix(in srgb, var(--sage) 20%, transparent); }
@@ -159,7 +197,7 @@
   .sheet-backdrop{ animation: backdropIn .18s ease both; }
   @keyframes backdropIn{ from{ opacity:0; } to{ opacity:1; } }
 
-  .sheet-pop{ animation: sheetUp .26s cubic-bezier(.2,.8,.2,1) both; }
+  .sheet-pop{ animation: sheetUp .26s cubic-bezier(.2,.8,.2,1) both; overflow:hidden; }
   @keyframes sheetUp{ from{ transform:translateY(100%); } to{ transform:translateY(0); } }
 
   .icon-btn, .btn-primary, .chip, .segbtn{ transition-property: transform, background, color, border-color; }

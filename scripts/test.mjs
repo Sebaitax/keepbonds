@@ -112,20 +112,21 @@ try {
   if (importedOk === 0) issues.push('BUG: el respaldo importado no dejó los contactos de prueba disponibles.');
   await shot('01-home.png');
 
-  // --- Scroll test on Home: verify TabBar + its center phone-icon button stay fixed ---
-  const tabBarBefore = await page.locator('text=Registrar').first().boundingBox();
+  // --- Scroll test on Home: el botón flotante "Añadir" debe quedarse fijo ---
+  const fab = page.locator('button.btn-primary:has-text("Añadir")');
+  const fabBefore = await fab.boundingBox();
   await page.evaluate(() => {
     document.querySelector('.screen-scroll').scrollTop = 800;
   });
   await page.waitForTimeout(200);
   await shot('02-home-scrolled.png');
-  const tabBarAfter = await page.locator('text=Registrar').first().boundingBox();
-  if (!tabBarBefore || !tabBarAfter) {
-    issues.push('SCROLL BUG: el botón "Registrar" (ícono de teléfono) no se encontró antes/después de scrollear.');
-  } else if (Math.abs(tabBarBefore.y - tabBarAfter.y) > 2) {
-    issues.push(`SCROLL BUG: el botón "Registrar" se movió de y=${tabBarBefore.y} a y=${tabBarAfter.y} al scrollear (debería quedarse fijo).`);
+  const fabAfter = await fab.boundingBox();
+  if (!fabBefore || !fabAfter) {
+    issues.push('SCROLL BUG: el botón flotante "Añadir" no se encontró antes/después de scrollear.');
+  } else if (Math.abs(fabBefore.y - fabAfter.y) > 2) {
+    issues.push(`SCROLL BUG: el botón "Añadir" se movió de y=${fabBefore.y} a y=${fabAfter.y} al scrollear (debería quedarse fijo).`);
   } else {
-    console.log('OK: TabBar/Registrar se mantiene fijo al scrollear en Inicio.');
+    console.log('OK: el botón "Añadir" se mantiene fijo al scrollear en Inicio.');
   }
   await page.evaluate(() => { document.querySelector('.screen-scroll').scrollTop = 0; });
 
@@ -133,7 +134,7 @@ try {
   await page.locator('.icon-btn').nth(1).click();
   await page.waitForTimeout(300);
   await shot('02b-notifications.png');
-  const notifTitle = await page.locator('text=Próximos avisos').count();
+  const notifTitle = await page.locator('text=A quién te toca hablar').count();
   if (notifTitle === 0) issues.push('BUG: el panel de notificaciones no se abrió al tocar la campanita.');
   await page.mouse.click(20, 20);
   await page.waitForTimeout(200);
@@ -154,12 +155,22 @@ try {
   await page.locator('svg path[d="M15 18l-6-6 6-6"]').first().click();
   await page.waitForTimeout(200);
 
-  // --- Add screen: manual ---
+  // --- Añadir (asistente paso a paso): manual ---
+  const next = () => page.getByRole('button', { name: 'Siguiente', exact: true }).click();
   await page.locator('text=Añadir').first().click();
   await page.waitForTimeout(200);
   await shot('05-add.png');
+  await page.locator('button:has-text("Escribirlo yo")').click();
+  await page.waitForTimeout(150);
+  // Sin nombre no se puede avanzar
+  const nextDisabled = await page.getByRole('button', { name: 'Siguiente', exact: true }).isDisabled();
+  if (!nextDisabled) issues.push('BUG: "Siguiente" debería estar deshabilitado sin nombre.');
   await page.locator('input[placeholder="Ej: María José Fuentes"]').fill('Persona de Prueba');
   await page.locator('input[type="tel"]').fill('+56 9 1111 1111');
+  await shot('05a-add-name.png');
+  await next(); // nombre -> rol
+  await page.waitForTimeout(150);
+  await next(); // rol -> cumpleaños
 
   // --- Validación: fecha de nacimiento en el futuro debe rechazarse ---
   // (el selector de año del DateSelect no ofrece años futuros, así que usamos una
@@ -168,18 +179,25 @@ try {
   const future = new Date(now.getFullYear(), 11, 28);
   const futureIso = future.toISOString().slice(0, 10);
   await fillDate(futureIso);
-  const saveBtn = page.getByRole('button', { name: 'Guardar', exact: true });
-  await saveBtn.click();
+  await next();
   await page.waitForTimeout(200);
   await shot('05b-add-future-date-error.png');
-  const stillOnAdd = await page.locator('text=Sumar a tu círculo').count();
-  if (stillOnAdd === 0) issues.push('BUG: se guardó un contacto con fecha de nacimiento futura (debería haberse rechazado).');
   const futureErrorShown = await page.locator('text=no puede ser en el futuro').count();
-  if (futureErrorShown === 0) issues.push('BUG: no se mostró el mensaje de error de fecha futura.');
+  if (futureErrorShown === 0) issues.push('BUG: no se mostró el mensaje de error de fecha futura (o avanzó de paso).');
 
-  // corregir la fecha y guardar de verdad
+  // corregir la fecha y seguir hasta guardar
   await fillDate('1990-01-15');
-  await saveBtn.click();
+  await next(); // -> prioridad
+  await page.waitForTimeout(150);
+  await next(); // -> frecuencia
+  await page.waitForTimeout(150);
+  await next(); // -> fechas importantes
+  await page.waitForTimeout(150);
+  await next(); // -> notas
+  await page.waitForTimeout(150);
+  await page.locator('textarea').fill('Le gusta el café');
+  await shot('05c-add-notes.png');
+  await page.locator('button:has-text("Guardar a Persona")').click();
   await page.waitForTimeout(300);
   await shot('06-home-after-add.png');
   const added = await page.locator('text=Persona de Prueba').count();
@@ -200,22 +218,28 @@ try {
     issues.push('BUG: no se encontró el botón de orden ("Nombre") junto a "Tu gente".');
   }
 
-  // --- Segundo contacto: sin cumpleaños, rol personalizado y fecha importante cíclica ---
+  // --- Segundo contacto: sin cumpleaños (Omitir), rol personalizado y fecha importante cíclica ---
   await page.locator('text=Añadir').first().click();
   await page.waitForTimeout(200);
+  await page.locator('button:has-text("Escribirlo yo")').click();
   await page.locator('input[placeholder="Ej: María José Fuentes"]').fill('Persona Sin Cumple');
+  await next(); // -> rol
 
   await page.locator('button:has-text("+ Otro")').click();
   await page.locator('input[placeholder="Ej: Compañeros de trabajo"]').fill('Compañeros de trabajo');
   await page.locator('button.btn-primary:has-text("Añadir")').click();
+  await page.waitForTimeout(150);
+  await next(); // -> cumpleaños
+  await page.getByRole('button', { name: 'Omitir', exact: true }).click(); // -> prioridad
+  await page.waitForTimeout(150);
+  await next(); // -> frecuencia
+  await next(); // -> fechas importantes
   await page.waitForTimeout(150);
 
   await page.locator('button:has-text("+ Añadir fecha")').click();
   await page.waitForTimeout(150);
   await page.locator('input[placeholder^="Nombre de la fecha"]').fill('Día del padre');
   // Modo por defecto ya es "Cíclica": el DateSelect de esta fecha no debe pedir año.
-  // Se escopa a los <select> dentro del propio formulario de la fecha, porque el
-  // campo de Cumpleaños de más arriba también tiene sus propios <select> en la página.
   const dateFormScope = page.locator('input[placeholder^="Nombre de la fecha"]').locator('xpath=..');
   const cyclicSelects = dateFormScope.locator('select');
   const cyclicSelectCount = await cyclicSelects.count();
@@ -225,9 +249,10 @@ try {
   await page.locator('button:has-text("Guardar")').last().click();
   await page.waitForTimeout(200);
   const cyclicDateAdded = await page.locator('text=Día del padre').count();
-  if (cyclicDateAdded === 0) issues.push('BUG: la fecha cíclica añadida en el formulario de Añadir persona no aparece.');
-
-  await page.getByRole('button', { name: 'Guardar', exact: true }).click();
+  if (cyclicDateAdded === 0) issues.push('BUG: la fecha cíclica añadida en el asistente no aparece.');
+  await next(); // -> notas
+  await page.waitForTimeout(150);
+  await page.getByRole('button', { name: 'Omitir y guardar', exact: true }).click();
   await page.waitForTimeout(300);
   await shot('06b-home-after-add-no-birthday.png');
 
@@ -247,9 +272,10 @@ try {
   // --- Add screen: desde contactos (sin plugin nativo -> debe mostrar error, no crashear) ---
   await page.locator('text=Añadir').first().click();
   await page.waitForTimeout(200);
-  await page.locator('text=Desde contactos').click();
+  await page.locator('button:has-text("Desde mis contactos")').click();
   await page.waitForTimeout(500);
   await shot('07-add-contacts-fallback.png');
+  if (await page.locator('text=¿A quién quieres añadir?').count() === 0) issues.push('BUG: elegir "Desde mis contactos" no llevó al paso de elegir contacto.');
 
   // volver a home
   await page.getByRole('button', { name: 'Cancelar' }).click();
@@ -316,10 +342,17 @@ try {
   await page.locator('svg path[d="M15 18l-6-6 6-6"]').first().click();
   await page.waitForTimeout(200);
 
-  // --- Registrar sheet (QuickLog) ---
-  await page.locator('button:has(svg path[d^="M22 16.92v3a2 2 0 0 1-2.18"])').first().click();
+  // --- "Te toca hablar con" vive en la campana (no en Inicio) ---
+  await page.evaluate(() => { document.querySelector('.screen-scroll').scrollTop = 0; });
+  if (await page.locator('text=Te toca hablar con').count() > 0) issues.push('BUG: "Te toca hablar con" sigue apareciendo en Inicio (debería estar solo en la campana).');
+  const badge = await page.locator('.badge-count').first().textContent().catch(() => '');
+  await page.locator('.icon-btn').nth(1).click();
   await page.waitForTimeout(300);
-  await shot('10-quicklog.png');
+  await shot('10-today.png');
+  if (await page.locator('text=Te toca hablar con').count() === 0) issues.push('BUG: la campana no muestra "Te toca hablar con" con contactos atrasados.');
+  const listTitle = await page.locator('text=Te toca hablar con').first().textContent().catch(() => '');
+  if (badge && !listTitle.includes(badge)) issues.push(`BUG: el número de la campana (${badge}) no coincide con la lista ("${listTitle}").`);
+  if (await page.locator('text=Registrar').count() > 0) issues.push('BUG: todavía aparece un botón "Registrar" aparte.');
   const llamarBtn = page.locator('button[title="Llamar"]').first();
   if (await llamarBtn.count()) {
     await llamarBtn.click();
@@ -330,17 +363,21 @@ try {
     if (noPhoneToast === 0) issues.push('BUG: al tocar "Llamar" en un contacto sin teléfono no se avisó con un toast.');
     await page.waitForTimeout(2200); // dejar que el toast desaparezca
 
-    // Probar el flujo de "Registrar" (nota sin llamada), que no depende del teléfono.
+    const titleBefore = await page.locator('text=Te toca hablar con').first().textContent();
     await page.locator('button[title="Registrar"]').first().click();
     await page.waitForTimeout(200);
     await page.locator('textarea[placeholder="¿De qué hablaron? (opcional)"]').fill('Prueba automatizada de nota.');
-    await page.getByRole('button', { name: 'Guardar', exact: true }).click();
+    await page.getByRole('button', { name: 'Ya hablamos', exact: true }).click();
     await page.waitForTimeout(300);
-    await shot('11-quicklog-after-call.png');
+    await shot('11-today-after-log.png');
+    const titleAfter = (await page.locator('text=Te toca hablar con').count()) ? await page.locator('text=Te toca hablar con').first().textContent() : '';
+    if (titleBefore === titleAfter) issues.push('BUG: registrar desde "Te toca hablar con" no sacó al contacto de la lista.');
+    await page.waitForTimeout(2200);
   } else {
     issues.push('INFO: no había contactos pendientes para probar el flujo de Llamar (puede ser normal).');
   }
-  // cerrar sheet
+
+  // cerrar la hoja de la campana
   await page.mouse.click(20, 20);
   await page.waitForTimeout(200);
 
