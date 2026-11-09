@@ -4,6 +4,7 @@ import { Contacts } from '@capacitor-community/contacts';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { App as CapApp } from '@capacitor/app';
+import { Clipboard } from '@capacitor/clipboard';
 
 /* ---------------- Internacionalización ---------------- */
 
@@ -281,6 +282,7 @@ const STRINGS = {
     'backup.import': 'Importar',
     'backup.exportBody': 'Copia este texto y guárdalo (nota, correo a ti mismo) para poder restaurar tus contactos en otro dispositivo.',
     'backup.copy': 'Copiar al portapapeles',
+    'backup.copyFailed': 'No se pudo copiar automáticamente. El texto quedó seleccionado: mantén presionado sobre él y elige Copiar.',
     'backup.importBody': 'Pega aquí un respaldo exportado antes. Esto reemplazará tus contactos actuales.',
     'backup.importPlaceholder': 'Pega aquí el JSON del respaldo...',
     'backup.importAction': 'Importar y reemplazar',
@@ -596,6 +598,7 @@ const STRINGS = {
     'backup.import': 'Import',
     'backup.exportBody': 'Copy this text and save it (a note, an email to yourself) so you can restore your contacts on another device.',
     'backup.copy': 'Copy to clipboard',
+    'backup.copyFailed': 'Couldn’t copy automatically. The text is selected: press and hold on it and choose Copy.',
     'backup.importBody': 'Paste a backup you exported before. This will replace your current contacts.',
     'backup.importPlaceholder': 'Paste the backup JSON here...',
     'backup.importAction': 'Import and replace',
@@ -2875,12 +2878,22 @@ function BackupSheet({contacts, onClose, onImport, onCopied}){
   const [importText, setImportText] = useState("");
   const [importError, setImportError] = useState("");
   const exportText = useMemo(()=>JSON.stringify(contacts, null, 2), [contacts]);
+  const exportRef = useRef(null);
+  const [copyFailed, setCopyFailed] = useState(false);
 
-  function copy(){
+  // Copia con el portapapeles nativo (en el navegador, el plugin usa el del
+  // navegador). Solo avisa "copiado" si de verdad se copió; si falla, deja el
+  // texto seleccionado para copiarlo a mano.
+  async function copy(){
     try{
-      navigator.clipboard.writeText(exportText);
+      await Clipboard.write({ string: exportText });
+      setCopyFailed(false);
       onCopied();
-    }catch(e){ /* el portapapeles puede no estar disponible: el usuario puede seleccionar y copiar manualmente */ }
+    }catch(e){
+      setCopyFailed(true);
+      const ta = exportRef.current;
+      if(ta){ ta.focus(); ta.select(); }
+    }
   }
 
   function doImport(){
@@ -2913,8 +2926,11 @@ function BackupSheet({contacts, onClose, onImport, onCopied}){
               <p style={{fontSize:".78rem", color:"var(--ink-soft)", margin:"0 0 10px"}}>
                 {t('backup.exportBody')}
               </p>
-              <textarea readOnly className="input" rows={8} style={{fontFamily:"monospace", fontSize:".72rem", resize:"none"}}
+              <textarea ref={exportRef} readOnly className="input" rows={8} style={{fontFamily:"monospace", fontSize:".72rem", resize:"none"}}
                 value={exportText} onFocus={e=>e.target.select()} />
+              {copyFailed && (
+                <p role="alert" style={{color:"var(--terracotta-deep)", fontSize:".76rem", fontWeight:600, margin:"8px 0 0"}}>{t('backup.copyFailed')}</p>
+              )}
               <button onClick={copy} className="btn-primary" style={{width:"100%", padding:"12px 0", marginTop:10, fontSize:".88rem"}}>
                 {t('backup.copy')}
               </button>
