@@ -63,10 +63,16 @@ const STRINGS = {
     'sort.overdue': 'Más atrasados',
     'sort.birthday': 'Próx. cumpleaños',
 
-    'dateMode.cyclic.label': 'Cíclica',
-    'dateMode.cyclic.hint': 'Se repite cada año en la misma fecha, sin un año de referencia (ej: Día del padre, cumpleaños de una mascota).',
-    'dateMode.yearly.label': 'Con año',
-    'dateMode.yearly.hint': 'Tiene un año de referencia y cuenta cuántos han pasado (ej: aniversario de matrimonio).',
+    'dateMode.cyclic.label': 'Cada año',
+    'dateMode.cyclic.hint': 'Se repite cada año en la misma fecha, sin año (ej: Día del padre, su santo, el cumpleaños de su mascota).',
+    'dateMode.yearly.label': 'Aniversario',
+    'dateMode.yearly.hint': 'Algo que ya pasó y se recuerda cada año, contando cuántos van (ej: aniversario de matrimonio).',
+    'dateMode.once.label': 'Una vez',
+    'dateMode.once.hint': 'Pasa una sola vez y puede ser en el futuro (ej: su matrimonio, un viaje, una operación). Después de esa fecha deja de avisarte.',
+    'dates.errorMissing': 'Ponle un nombre y elige la fecha completa.',
+    'dates.errorPast': 'Esa fecha ya pasó. Si quieres recordarla cada año, elige “Aniversario”.',
+    'dates.errorFuture': 'Un aniversario cuenta desde algo que ya pasó. Si todavía no ocurre, elige “Una vez”.',
+    'dates.passed': 'ya pasó',
 
     'status.postponed': 'Pospuesto',
     'status.recent': 'Reciente',
@@ -164,6 +170,15 @@ const STRINGS = {
     'add.q.sourceContactsTitle': 'Desde mis contactos',
     'add.q.sourceContactsSub': 'Traemos su nombre, teléfono y cumpleaños',
     'add.q.pick': '¿A quién quieres añadir?',
+    'add.q.pickHint': 'Los que ya están en tu gente aparecen marcados.',
+    'picker.already': 'Ya está en tu gente',
+    'edit.linkContact': 'Traer teléfono y cumpleaños de mis contactos',
+    'edit.linkTitle': (n) => `¿Quién es ${n} en tus contactos?`,
+    'edit.linkHint': 'Traemos su teléfono y, si no tiene, su cumpleaños. Revisa antes de guardar.',
+    'edit.linkedNote': (from, what) => what.length ? `Desde “${from}” se trajo: ${what.join(' y ')}. Toca Guardar para confirmar.` : `“${from}” no tenía teléfono ni cumpleaños nuevos.`,
+    'edit.linkedPhone': 'teléfono',
+    'edit.linkedBday': 'cumpleaños',
+    'edit.useName': (n) => `Usar también el nombre “${n}”`,
     'add.q.name': '¿Cómo se llama?',
     'add.q.nameHint': 'Escribe su nombre como tú le dices. La foto es opcional.',
     'add.q.nameHintContacts': 'Lo trajimos de tus contactos. Puedes cambiarlo y agregar una foto.',
@@ -379,10 +394,16 @@ const STRINGS = {
     'sort.overdue': 'Most overdue',
     'sort.birthday': 'Next birthday',
 
-    'dateMode.cyclic.label': 'Recurring',
-    'dateMode.cyclic.hint': 'Repeats every year on the same date, with no reference year (e.g. Father’s Day, a pet’s birthday).',
-    'dateMode.yearly.label': 'With year',
-    'dateMode.yearly.hint': 'Has a reference year and counts how many have passed (e.g. a wedding anniversary).',
+    'dateMode.cyclic.label': 'Every year',
+    'dateMode.cyclic.hint': 'Repeats every year on the same date, with no year (e.g. Father’s Day, a pet’s birthday).',
+    'dateMode.yearly.label': 'Anniversary',
+    'dateMode.yearly.hint': 'Something that already happened and is remembered every year, counting how many (e.g. a wedding anniversary).',
+    'dateMode.once.label': 'Once',
+    'dateMode.once.hint': 'Happens only once and can be in the future (e.g. their wedding, a trip, a surgery). After that date it stops reminding you.',
+    'dates.errorMissing': 'Give it a name and pick the full date.',
+    'dates.errorPast': 'That date has already passed. To remember it every year, choose “Anniversary”.',
+    'dates.errorFuture': 'An anniversary counts from something that already happened. If it hasn’t happened yet, choose “Once”.',
+    'dates.passed': 'already passed',
 
     'status.postponed': 'Postponed',
     'status.recent': 'Recent',
@@ -480,6 +501,15 @@ const STRINGS = {
     'add.q.sourceContactsTitle': 'From my contacts',
     'add.q.sourceContactsSub': 'We bring their name, phone and birthday',
     'add.q.pick': 'Who do you want to add?',
+    'add.q.pickHint': 'People already in your list are marked.',
+    'picker.already': 'Already added',
+    'edit.linkContact': 'Bring phone and birthday from my contacts',
+    'edit.linkTitle': (n) => `Who is ${n} in your contacts?`,
+    'edit.linkHint': 'We bring their phone and, if missing, their birthday. Check before saving.',
+    'edit.linkedNote': (from, what) => what.length ? `From “${from}” we brought: ${what.join(' and ')}. Tap Save to confirm.` : `“${from}” had no new phone or birthday.`,
+    'edit.linkedPhone': 'phone',
+    'edit.linkedBday': 'birthday',
+    'edit.useName': (n) => `Also use the name “${n}”`,
     'add.q.name': 'What’s their name?',
     'add.q.nameHint': 'Write their name the way you call them. The photo is optional.',
     'add.q.nameHintContacts': 'We took it from your contacts. You can edit it and add a photo.',
@@ -905,6 +935,11 @@ function formatDateEs(iso, lang='es'){
   const d = new Date(iso+"T00:00:00");
   return d.toLocaleDateString(LOCALE_BY_LANG[lang] || 'es', {day:'numeric', month:'short'});
 }
+// Para fechas que pasan una sola vez el año importa (ej: "14 feb 2027").
+function formatDateWithYear(iso, lang='es'){
+  const d = new Date(iso+"T00:00:00");
+  return d.toLocaleDateString(LOCALE_BY_LANG[lang] || 'es', {day:'numeric', month:'short', year:'numeric'});
+}
 function formatTodayLong(lang='es'){
   const s = new Date().toLocaleDateString(LOCALE_BY_LANG[lang] || 'es', {weekday:'long', day:'numeric', month:'long'});
   return s.charAt(0).toUpperCase() + s.slice(1);
@@ -919,6 +954,19 @@ function nextBirthdayInfo(birthday){
   const daysIn = Math.round((next - today) / 86400000);
   const turningAge = next.getFullYear() - y;
   return { daysIn, turningAge };
+}
+
+// Próxima vez que toca una fecha importante. "cyclic" y "yearly" se repiten
+// cada año; "once" ocurre una sola vez (puede ser en el futuro) y, cuando ya
+// pasó, queda marcada como pasada para no avisar ni mostrarla como próxima.
+function importantDateInfo(d){
+  if(d.mode === "once"){
+    const [y,m,day] = d.date.split("-").map(Number);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const daysIn = Math.round((new Date(y, m-1, day) - today) / 86400000);
+    return { daysIn, turningAge: 0, past: daysIn < 0 };
+  }
+  return { ...nextBirthdayInfo(d.date), past: false };
 }
 function formatBirthdayShort(birthday, lang='es'){
   const [, m, d] = birthday.split("-").map(Number);
@@ -1034,10 +1082,16 @@ function computeUpcomingAlerts(contacts, now = new Date(), tr){
     const importantDates = c.importantDates || [];
     for(let idx=0; idx<importantDates.length; idx++){
       const d = importantDates[idx];
-      const info = nextBirthdayInfo(d.date);
-      const [, m, day] = d.date.split("-").map(Number);
-      let next = new Date(now.getFullYear(), m-1, day);
-      if(next < now) next = new Date(now.getFullYear()+1, m-1, day);
+      const info = importantDateInfo(d);
+      if(info.past) continue;
+      const [y, m, day] = d.date.split("-").map(Number);
+      let next;
+      if(d.mode === "once"){
+        next = new Date(y, m-1, day);
+      } else {
+        next = new Date(now.getFullYear(), m-1, day);
+        if(next < now) next = new Date(now.getFullYear()+1, m-1, day);
+      }
       const fireDate = new Date(next);
       fireDate.setDate(fireDate.getDate() - (c.remind || 5));
       fireDate.setHours(9,0,0,0);
@@ -1234,7 +1288,7 @@ function HomeScreen({contacts, filter, setFilter, onOpenContact, onOpenSettings,
       .filter(c=>c.birthday)
       .map(c=>({ contact:c, isBirthday:true, label:"Cumpleaños", date:c.birthday, ...nextBirthdayInfo(c.birthday) }));
     const dates = contacts.flatMap(c =>
-      (c.importantDates||[]).map(d=>({ contact:c, isBirthday:false, label:d.label, date:d.date, dateId:d.id, ...nextBirthdayInfo(d.date) }))
+      (c.importantDates||[]).map(d=>({ contact:c, isBirthday:false, label:d.label, date:d.date, dateId:d.id, ...importantDateInfo(d) })).filter(u=>!u.past)
     );
     // Solo lo que viene pronto: una fecha a 300 días no es algo para mirar hoy.
     return [...birthdays, ...dates].filter(u=>u.daysIn<=UPCOMING_WINDOW_DAYS).sort((a,b)=>a.daysIn-b.daysIn);
@@ -1995,7 +2049,7 @@ function RoleSelector({role, setRole, customRoles}){
   );
 }
 
-const IMPORTANT_DATE_MODE_KEYS = ["cyclic", "yearly"];
+const IMPORTANT_DATE_MODE_KEYS = ["cyclic", "yearly", "once"];
 
 function ImportantDatesEditor({dates, onAdd, onDelete}){
   const {lang, t} = useT();
@@ -2003,11 +2057,16 @@ function ImportantDatesEditor({dates, onAdd, onDelete}){
   const [dateLabel, setDateLabel] = useState("");
   const [dateMode, setDateMode] = useState("cyclic");
   const [dateValue, setDateValue] = useState("");
+  const [dateError, setDateError] = useState("");
+  const thisYear = new Date().getFullYear();
 
   function saveDate(){
-    if(!dateLabel.trim() || !dateValue) return;
+    if(!dateLabel.trim() || !dateValue){ setDateError(t('dates.errorMissing')); return; }
+    // "Una vez" no puede estar en el pasado; un aniversario cuenta desde algo que ya pasó.
+    if(dateMode==="once" && dateValue < todayISO()){ setDateError(t('dates.errorPast')); return; }
+    if(dateMode==="yearly" && dateValue > todayISO()){ setDateError(t('dates.errorFuture')); return; }
     onAdd({ id: makeId(), label: dateLabel.trim(), mode: dateMode, date: dateValue });
-    setAddingDate(false); setDateLabel(""); setDateValue(""); setDateMode("cyclic");
+    setAddingDate(false); setDateLabel(""); setDateValue(""); setDateMode("cyclic"); setDateError("");
   }
 
   return (
@@ -2015,13 +2074,13 @@ function ImportantDatesEditor({dates, onAdd, onDelete}){
       {dates && dates.length>0 && (
         <div style={{display:"flex", flexDirection:"column", gap:8, marginBottom: addingDate ? 12 : 0}}>
           {dates.map(d=>{
-            const info = nextBirthdayInfo(d.date);
+            const info = importantDateInfo(d);
             return (
               <div key={d.id} style={{display:"flex", alignItems:"center", gap:10, padding:"8px 10px", background:"var(--surface-2)", borderRadius:".8rem"}}>
                 <div style={{flex:1, minWidth:0}}>
                   <p style={{margin:0, fontWeight:700, fontSize:".84rem", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>{d.label}</p>
                   <p style={{margin:0, fontSize:".72rem", color:"var(--ink-faint)"}}>
-                    {formatBirthdayShort(d.date, lang)} · {info.daysIn===0 ? t('dates.today') : t('dates.inDays', info.daysIn)}
+                    {d.mode==="once" ? formatDateWithYear(d.date, lang) : formatBirthdayShort(d.date, lang)} · {info.past ? t('dates.passed') : info.daysIn===0 ? t('dates.today') : t('dates.inDays', info.daysIn)}
                     {d.mode==="yearly" && info.turningAge>0 && ` · ${t('dates.years', info.turningAge)}`}
                   </p>
                 </div>
@@ -2037,18 +2096,23 @@ function ImportantDatesEditor({dates, onAdd, onDelete}){
         <div>
           <input className="input" placeholder={t('dates.namePlaceholder')}
             value={dateLabel} onChange={e=>setDateLabel(e.target.value)} style={{marginBottom:8}} />
-          <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:8}}>
+          <div style={{display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, marginBottom:8}}>
             {IMPORTANT_DATE_MODE_KEYS.map(key=>(
-              <button key={key} className="segbtn" data-active={dateMode===key}
-                onClick={()=>{ setDateMode(key); setDateValue(""); }}>
+              <button key={key} className="segbtn" data-active={dateMode===key} data-mode={key}
+                onClick={()=>{ setDateMode(key); setDateValue(""); setDateError(""); }}>
                 {t(`dateMode.${key}.label`)}
               </button>
             ))}
           </div>
           <p style={{margin:"0 0 8px", fontSize:".72rem", color:"var(--ink-faint)"}}>{t(`dateMode.${dateMode}.hint`)}</p>
-          <DateSelect value={dateValue} onChange={setDateValue} showYear={dateMode==="yearly"} maxYear={new Date().getFullYear()} />
+          <DateSelect key={dateMode} value={dateValue} onChange={v=>{ setDateValue(v); setDateError(""); }} showYear={dateMode!=="cyclic"}
+            minYear={dateMode==="once" ? thisYear : undefined}
+            maxYear={dateMode==="once" ? thisYear + 10 : thisYear} />
+          {dateError && (
+            <p role="alert" style={{margin:"8px 0 0", fontSize:".76rem", fontWeight:600, color:"var(--terracotta-deep)"}}>{dateError}</p>
+          )}
           <div style={{display:"flex", gap:8, marginTop:10}}>
-            <button onClick={()=>{ setAddingDate(false); setDateLabel(""); setDateValue(""); setDateMode("cyclic"); }}
+            <button onClick={()=>{ setAddingDate(false); setDateLabel(""); setDateValue(""); setDateMode("cyclic"); setDateError(""); }}
               className="segbtn" style={{textAlign:"center", flex:1}}>
               {t('common.cancel')}
             </button>
@@ -2064,48 +2128,25 @@ function ImportantDatesEditor({dates, onAdd, onDelete}){
   );
 }
 
-// Añadir persona como asistente: una pregunta por pantalla, con "Siguiente"
-// abajo (y "Omitir" en los pasos opcionales). Primero se elige si se escribe
-// a mano o se trae desde los contactos del teléfono.
-function AddScreen({onSave, onCancel, defaultFreq, customRoles}){
+// Busca si un contacto del teléfono ya está en KeepBonds: mismo teléfono
+// (últimos 8 dígitos, para ignorar +56 / 0 / espacios) o mismo nombre.
+function findExistingMatch(d, existing){
+  const tail = onlyDigits(d.phone || "").slice(-8);
+  const name = d.name.trim().toLowerCase();
+  return existing.find(c => (tail.length===8 && onlyDigits(c.phone || "").slice(-8)===tail) || c.name.trim().toLowerCase()===name) || null;
+}
+
+// Lista buscable de los contactos del teléfono. Marca los que ya están en
+// KeepBonds; con blockExisting no deja elegirlos (evita duplicados al añadir).
+function DeviceContactPicker({existing=[], blockExisting=false, onPick}){
   const {lang, t} = useT();
-  const [mode, setMode] = useState(null); // null | manual | contacts
-  const [stepIdx, setStepIdx] = useState(0);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [photo, setPhoto] = useState("");
-  const [role, setRole] = useState("Familia");
-  const [birthday, setBirthday] = useState("");
-  const [birthdayFromDevice, setBirthdayFromDevice] = useState(false);
-  const [priority, setPriority] = useState("Media");
-  const [freq, setFreq] = useState(defaultFreq || "Quincenal");
-  const [notes, setNotes] = useState("");
-  const [importantDates, setImportantDates] = useState([]);
-  const [error, setError] = useState("");
-  const [deviceQuery, setDeviceQuery] = useState("");
-  const [deviceContacts, setDeviceContacts] = useState([]);
-  const [contactsStatus, setContactsStatus] = useState("idle"); // idle | loading | error | loaded
-  const [contactsErrorMsg, setContactsErrorMsg] = useState("");
-  const [cropSrc, setCropSrc] = useState(null);
+  const [query, setQuery] = useState("");
+  const [list, setList] = useState([]);
+  const [status, setStatus] = useState("loading"); // loading | error | loaded
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const priorities = ["Alta","Media","Baja"];
-  const freqs = ["Semanal","Quincenal","Mensual","Trimestral"];
-  const steps = mode==="contacts"
-    ? ["source","pick","name","role","birthday","priority","freq","dates","notes"]
-    : ["source","name","role","birthday","priority","freq","dates","notes"];
-  const step = steps[stepIdx];
-  const isLast = stepIdx === steps.length - 1;
-  const optionalSteps = ["birthday","dates","notes"];
-  const first = name.trim().split(" ")[0] || t('add.q.thisPerson');
-
-  const q = deviceQuery.trim().toLowerCase();
-  const filteredDevice = q
-    ? deviceContacts.filter(d=>d.name.toLowerCase().includes(q))
-    : deviceContacts.slice(0, 30);
-
-  async function loadDeviceContacts(){
-    setContactsStatus("loading"); setContactsErrorMsg("");
-
+  async function load(){
+    setStatus("loading"); setErrorMsg("");
     // Llamamos a getContacts directamente: el propio plugin revisa el permiso,
     // muestra el diálogo del sistema si hace falta, y sigue solo si lo aceptas.
     // (Pedir el permiso aparte y luego llamar a getContacts duplica el flujo
@@ -2121,21 +2162,117 @@ function AddScreen({onSave, onCancel, defaultFreq, customRoles}){
         }))
         .filter(c=>c.name && c.name.trim())
         .sort((a,b)=>a.name.localeCompare(b.name, lang));
-      setDeviceContacts(mapped);
-      setContactsStatus("loaded");
+      setList(mapped);
+      setStatus("loaded");
     }catch(err){
-      setContactsStatus("error");
+      setStatus("error");
       const detail = err?.message || err?.errorMessage || (typeof err === "string" ? err : "");
-      setContactsErrorMsg(t('add.contactsError', detail));
+      setErrorMsg(t('add.contactsError', detail));
       console.error("Contacts.getContacts error", err);
     }
   }
+  useEffect(()=>{ load(); }, []);
 
-  useEffect(()=>{
-    if(mode==="contacts" && contactsStatus==="idle"){
-      loadDeviceContacts();
-    }
-  }, [mode, contactsStatus]);
+  const q = query.trim().toLowerCase();
+  const filtered = q ? list.filter(d=>d.name.toLowerCase().includes(q)) : list.slice(0, 30);
+
+  if(status==="loading") return <p style={{fontSize:".85rem", color:"var(--ink-soft)", margin:0}}>{t('add.loadingContacts')}</p>;
+  if(status==="error") return (
+    <div className="card" style={{padding:12}}>
+      <p style={{margin:"0 0 10px", fontSize:".82rem", color:"var(--terracotta-deep)"}}>{errorMsg}</p>
+      <button onClick={load} className="segbtn" style={{width:"100%"}}>{t('common.retry')}</button>
+    </div>
+  );
+  return (
+    <div style={{display:"flex", flexDirection:"column", gap:10}}>
+      <input className="input" placeholder={t('add.searchPlaceholder')} value={query} onChange={e=>setQuery(e.target.value)} />
+      {!q && list.length>30 && (
+        <p style={{margin:"-4px 0 0", fontSize:".74rem", color:"var(--ink-faint)"}}>{t('add.showingOf', 30, list.length)}</p>
+      )}
+      <div style={{display:"flex", flexDirection:"column", gap:6}}>
+        {filtered.map(d=>{
+          const match = findExistingMatch(d, existing);
+          const blocked = blockExisting && !!match;
+          return (
+            <button key={d.id} onClick={()=>{ if(!blocked){ hapticTap(); onPick(d); } }} disabled={blocked} className="card"
+              style={{display:"flex", alignItems:"center", gap:10, padding:10, textAlign:"left", boxShadow:"none", opacity: blocked ? .55 : 1}}>
+              <div style={{width:38, height:38, borderRadius:999, background:"var(--surface-2)", color:"var(--ink-soft)",
+                    display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"var(--font-display)", fontWeight:700, fontSize:".85rem", flexShrink:0}}>
+                {initials(d.name)}
+              </div>
+              <div style={{minWidth:0, flex:1}}>
+                <p style={{margin:0, fontWeight:700, fontSize:".9rem", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>{d.name}</p>
+                <p style={{margin:0, fontSize:".74rem", color:"var(--ink-faint)"}}>{d.phone || t('add.noPhone')}</p>
+              </div>
+              {match && (
+                <span style={{fontSize:".7rem", fontWeight:700, color:"var(--sage-deep)", background:"var(--sage-soft)", padding:"3px 8px", borderRadius:999, flexShrink:0}}>
+                  {t('picker.already')}
+                </span>
+              )}
+            </button>
+          );
+        })}
+        {filtered.length===0 && (
+          <p style={{fontSize:".82rem", color:"var(--ink-faint)", margin:0}}>
+            {list.length===0 ? t('add.noDeviceContacts') : t('common.noResults')}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Hoja para vincular un contacto del teléfono a una persona ya agregada.
+function LinkContactSheet({personName, existing, onClose, onPick}){
+  const {t} = useT();
+  const {sheetRef, sheetStyle, handleProps} = useDraggableSheet(onClose);
+  return (
+    <div className="sheet-backdrop" style={{position:"absolute", inset:0, background:"rgba(54,47,36,.45)", display:"flex", alignItems:"flex-end", zIndex:46}}
+         onClick={onClose}>
+      <div ref={sheetRef} className="card sheet-pop" onClick={e=>e.stopPropagation()}
+           style={{width:"100%", borderBottomLeftRadius:0, borderBottomRightRadius:0, padding:"16px 18px 22px", maxHeight:"85%", display:"flex", flexDirection:"column", ...sheetStyle}}>
+        <div {...handleProps}>
+          <div style={{width:44, height:5, background:"var(--line)", borderRadius:999, margin:"0 auto 12px"}} />
+          <p style={{fontWeight:700, margin:"0 0 2px", fontSize:".95rem"}}>{t('edit.linkTitle', personName)}</p>
+          <p style={{margin:"0 0 12px", fontSize:".78rem", color:"var(--ink-soft)"}}>{t('edit.linkHint')}</p>
+        </div>
+        <div className="screen-scroll">
+          <DeviceContactPicker existing={existing} onPick={onPick} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Añadir persona como asistente: una pregunta por pantalla, con "Siguiente"
+// abajo (y "Omitir" en los pasos opcionales). Primero se elige si se escribe
+// a mano o se trae desde los contactos del teléfono.
+function AddScreen({onSave, onCancel, defaultFreq, customRoles, existing=[]}){
+  const {lang, t} = useT();
+  const [mode, setMode] = useState(null); // null | manual | contacts
+  const [stepIdx, setStepIdx] = useState(0);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [photo, setPhoto] = useState("");
+  const [role, setRole] = useState("Familia");
+  const [birthday, setBirthday] = useState("");
+  const [birthdayFromDevice, setBirthdayFromDevice] = useState(false);
+  const [priority, setPriority] = useState("Media");
+  const [freq, setFreq] = useState(defaultFreq || "Quincenal");
+  const [notes, setNotes] = useState("");
+  const [importantDates, setImportantDates] = useState([]);
+  const [error, setError] = useState("");
+  const [cropSrc, setCropSrc] = useState(null);
+
+  const priorities = ["Alta","Media","Baja"];
+  const freqs = ["Semanal","Quincenal","Mensual","Trimestral"];
+  const steps = mode==="contacts"
+    ? ["source","pick","name","role","birthday","priority","freq","dates","notes"]
+    : ["source","name","role","birthday","priority","freq","dates","notes"];
+  const step = steps[stepIdx];
+  const isLast = stepIdx === steps.length - 1;
+  const optionalSteps = ["birthday","dates","notes"];
+  const first = name.trim().split(" ")[0] || t('add.q.thisPerson');
 
   async function choosePhoto(){
     const dataUrl = await pickContactPhoto(lang);
@@ -2150,7 +2287,6 @@ function AddScreen({onSave, onCancel, defaultFreq, customRoles}){
   }
 
   function pickDevice(d){
-    hapticTap();
     setName(d.name);
     setPhone(d.phone || "");
     setBirthday(d.birthday || "");
@@ -2252,44 +2388,11 @@ function AddScreen({onSave, onCancel, defaultFreq, customRoles}){
 
         {step==="pick" && (
           <React.Fragment>
-            <h2 className="font-display" style={questionStyle}>{t('add.q.pick')}</h2>
-            {contactsStatus==="loading" && (
-              <p style={{fontSize:".85rem", color:"var(--ink-soft)", margin:0}}>{t('add.loadingContacts')}</p>
-            )}
-            {contactsStatus==="error" && (
-              <div className="card" style={{padding:12}}>
-                <p style={{margin:"0 0 10px", fontSize:".82rem", color:"var(--terracotta-deep)"}}>{contactsErrorMsg}</p>
-                <button onClick={loadDeviceContacts} className="segbtn" style={{width:"100%"}}>{t('common.retry')}</button>
-              </div>
-            )}
-            {contactsStatus==="loaded" && (
-              <React.Fragment>
-                <input className="input" placeholder={t('add.searchPlaceholder')} value={deviceQuery} onChange={e=>setDeviceQuery(e.target.value)} />
-                {!q && deviceContacts.length>30 && (
-                  <p style={{margin:"-6px 0 0", fontSize:".74rem", color:"var(--ink-faint)"}}>{t('add.showingOf', 30, deviceContacts.length)}</p>
-                )}
-                <div style={{display:"flex", flexDirection:"column", gap:6}}>
-                  {filteredDevice.map(d=>(
-                    <button key={d.id} onClick={()=>pickDevice(d)} className="card"
-                      style={{display:"flex", alignItems:"center", gap:10, padding:10, textAlign:"left", boxShadow:"none"}}>
-                      <div style={{width:38, height:38, borderRadius:999, background:"var(--surface-2)", color:"var(--ink-soft)",
-                            display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"var(--font-display)", fontWeight:700, fontSize:".85rem", flexShrink:0}}>
-                        {initials(d.name)}
-                      </div>
-                      <div style={{minWidth:0, flex:1}}>
-                        <p style={{margin:0, fontWeight:700, fontSize:".9rem", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>{d.name}</p>
-                        <p style={{margin:0, fontSize:".74rem", color:"var(--ink-faint)"}}>{d.phone || t('add.noPhone')}</p>
-                      </div>
-                    </button>
-                  ))}
-                  {filteredDevice.length===0 && (
-                    <p style={{fontSize:".82rem", color:"var(--ink-faint)", margin:0}}>
-                      {deviceContacts.length===0 ? t('add.noDeviceContacts') : t('common.noResults')}
-                    </p>
-                  )}
-                </div>
-              </React.Fragment>
-            )}
+            <div>
+              <h2 className="font-display" style={questionStyle}>{t('add.q.pick')}</h2>
+              <p style={hintStyle}>{t('add.q.pickHint')}</p>
+            </div>
+            <DeviceContactPicker existing={existing} blockExisting onPick={pickDevice} />
           </React.Fragment>
         )}
 
@@ -2433,7 +2536,7 @@ function AddScreen({onSave, onCancel, defaultFreq, customRoles}){
   );
 }
 
-function EditContactScreen({contact, onSave, onCancel, onDelete, customRoles}){
+function EditContactScreen({contact, onSave, onCancel, onDelete, customRoles, existing=[]}){
   const {lang, t} = useT();
   const [name, setName] = useState(contact.name);
   const [phone, setPhone] = useState(contact.phone || "");
@@ -2446,9 +2549,22 @@ function EditContactScreen({contact, onSave, onCancel, onDelete, customRoles}){
   const [error, setError] = useState("");
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [cropSrc, setCropSrc] = useState(null);
+  const [linkOpen, setLinkOpen] = useState(false);
+  const [linked, setLinked] = useState(null); // { from, phone, birthday } tras vincular
 
   const priorities = ["Alta","Media","Baja"];
   const freqs = ["Semanal","Quincenal","Mensual","Trimestral"];
+
+  // Trae teléfono (y cumpleaños si no tenía) de un contacto del teléfono.
+  // No cambia el nombre: lo ofrece aparte, porque suele ser el apodo que eligió el usuario.
+  function linkFromDevice(d){
+    const gotPhone = !!d.phone && d.phone !== phone;
+    const gotBirthday = !birthday && !!d.birthday;
+    if(gotPhone) setPhone(d.phone);
+    if(gotBirthday) setBirthday(d.birthday);
+    setLinked({ from: d.name, phone: gotPhone, birthday: gotBirthday });
+    setLinkOpen(false);
+  }
 
   async function choosePhoto(){
     const dataUrl = await pickContactPhoto(lang);
@@ -2469,7 +2585,7 @@ function EditContactScreen({contact, onSave, onCancel, onDelete, customRoles}){
   }
 
   return (
-    <div className="screen-enter" style={{height:"100%", display:"flex", flexDirection:"column"}}>
+    <div className="screen-enter" style={{height:"100%", display:"flex", flexDirection:"column", position:"relative"}}>
       <div style={{display:"flex", alignItems:"center", padding:"16px 14px 4px"}}>
         <button onClick={onCancel} style={{fontSize:".9rem", color:"var(--ink-soft)", padding:"6px 4px"}}>
           {t('common.cancel')}
@@ -2510,6 +2626,20 @@ function EditContactScreen({contact, onSave, onCancel, onDelete, customRoles}){
         <div>
           <p className="field-label" style={{marginBottom:6}}>{t('add.phoneLabel', t('common.optional'))}</p>
           <input type="tel" className="input" placeholder={t('add.phonePlaceholder')} value={phone} onChange={e=>setPhone(e.target.value)} />
+          <button onClick={()=>{ hapticTap(); setLinkOpen(true); }} className="segbtn" style={{width:"100%", marginTop:8, display:"flex", alignItems:"center", justifyContent:"center", gap:8}}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+            {t('edit.linkContact')}
+          </button>
+          {linked && (
+            <div style={{marginTop:8, padding:"10px 12px", borderRadius:".8rem", background:"var(--sage-soft)", color:"var(--sage-deep)", fontSize:".8rem", fontWeight:600}}>
+              {t('edit.linkedNote', linked.from, [linked.phone && t('edit.linkedPhone'), linked.birthday && t('edit.linkedBday')].filter(Boolean))}
+              {linked.from !== name && (
+                <button onClick={()=>setName(linked.from)} style={{display:"block", marginTop:6, fontWeight:700, color:"var(--sage-deep)", textDecoration:"underline"}}>
+                  {t('edit.useName', linked.from)}
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         <div>
@@ -2557,6 +2687,11 @@ function EditContactScreen({contact, onSave, onCancel, onDelete, customRoles}){
           onCancel={()=>setCropSrc(null)}
           onConfirm={(cropped)=>{ setPhoto(cropped); setCropSrc(null); }}
         />
+      )}
+      {linkOpen && (
+        <LinkContactSheet personName={name.split(" ")[0] || contact.name.split(" ")[0]}
+          existing={existing.filter(c=>c.id!==contact.id)}
+          onClose={()=>setLinkOpen(false)} onPick={linkFromDevice} />
       )}
     </div>
   );
@@ -3369,10 +3504,11 @@ export default function App(){
             onCancel={()=>setScreen("detail")}
             onDelete={()=>deleteContact(selected.id)}
             customRoles={customRoles}
+            existing={contacts}
           />
         )}
         {screen==="add" && (
-          <AddScreen onSave={addContact} onCancel={()=>setScreen("home")} defaultFreq={settings.defaultFreq} customRoles={customRoles} />
+          <AddScreen onSave={addContact} onCancel={()=>setScreen("home")} defaultFreq={settings.defaultFreq} customRoles={customRoles} existing={contacts} />
         )}
         {screen==="settings" && (
           <SettingsScreen

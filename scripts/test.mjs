@@ -318,7 +318,7 @@ try {
   await page.locator('button:has-text("+ Añadir fecha")').click();
   await page.waitForTimeout(200);
   await page.locator('input[placeholder^="Nombre de la fecha"]').fill('Aniversario');
-  await page.locator('button:has-text("Con año")').click();
+  await page.locator('button[data-mode="yearly"]').click();
   const selectsInDate = page.locator('select');
   await selectsInDate.nth(0).selectOption('20');
   await selectsInDate.nth(1).selectOption('6');
@@ -332,6 +332,57 @@ try {
   const deleteDateBtn = page.locator('button:has(svg path[d="M18 6L6 18M6 6l12 12"])').first();
   if (await deleteDateBtn.count()) {
     await deleteDateBtn.click();
+    await page.waitForTimeout(200);
+  }
+
+  // --- Fecha "Una vez" en el futuro (ej: matrimonio de una tía el próximo año) ---
+  const nextYear = String(new Date().getFullYear() + 1);
+  await page.locator('button:has-text("+ Añadir fecha")').click();
+  await page.waitForTimeout(150);
+  await page.locator('input[placeholder^="Nombre de la fecha"]').fill('Matrimonio');
+  await page.locator('button[data-mode="once"]').click();
+  {
+    const scope = page.locator('input[placeholder^="Nombre de la fecha"]').locator('xpath=..');
+    const sel = scope.locator('select');
+    await sel.nth(0).selectOption('15');
+    await sel.nth(1).selectOption('3');
+    const years = await sel.nth(2).locator('option').allTextContents();
+    if (!years.includes(nextYear)) issues.push(`BUG: "Una vez" no ofrece el año ${nextYear} (años: ${years.slice(0,4).join(', ')}...).`);
+    await sel.nth(2).selectOption(nextYear);
+  }
+  await page.locator('button:has-text("Guardar")').last().click();
+  await page.waitForTimeout(300);
+  await shot('08g-detail-once-future.png');
+  if (await page.locator('text=Matrimonio').count() === 0) issues.push('BUG: no se pudo guardar una fecha "Una vez" en el futuro.');
+  const onceLine = await page.locator('text=Matrimonio').first().locator('xpath=..').textContent();
+  if (!/en \d+ días/.test(onceLine)) issues.push(`BUG: la fecha futura no muestra cuántos días faltan ("${onceLine}").`);
+
+  // "Una vez" en el pasado y "Aniversario" en el futuro deben rechazarse con un mensaje claro
+  await page.locator('button:has-text("+ Añadir fecha")').click();
+  await page.waitForTimeout(150);
+  await page.locator('input[placeholder^="Nombre de la fecha"]').fill('Fecha inválida');
+  await page.locator('button[data-mode="yearly"]').click();
+  {
+    const scope = page.locator('input[placeholder^="Nombre de la fecha"]').locator('xpath=..');
+    const sel = scope.locator('select');
+    const yearsYearly = await sel.nth(2).locator('option').allTextContents();
+    if (yearsYearly.includes(nextYear)) issues.push('BUG: "Aniversario" ofrece años futuros.');
+    await sel.nth(0).selectOption('31');
+    await sel.nth(1).selectOption('12');
+    await sel.nth(2).selectOption(String(new Date().getFullYear()));
+  }
+  await page.locator('button:has-text("Guardar")').last().click();
+  await page.waitForTimeout(200);
+  const today = new Date();
+  const isLastDay = today.getMonth() === 11 && today.getDate() === 31;
+  if (!isLastDay && await page.locator('text=Si todavía no ocurre').count() === 0) issues.push('BUG: un aniversario en el futuro no mostró el aviso para usar "Una vez".');
+  await page.locator('button:has-text("Cancelar")').last().click();
+  await page.waitForTimeout(150);
+
+  // limpiar la fecha "Matrimonio"
+  {
+    const row = page.locator('text=Matrimonio').first().locator('xpath=../..');
+    await row.locator('button').last().click();
     await page.waitForTimeout(200);
   }
 
